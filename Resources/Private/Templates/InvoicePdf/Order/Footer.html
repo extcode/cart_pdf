@@ -1,0 +1,122 @@
+<f:if condition="{orderSettings.summary.fields.cart.net}">
+    <tr>
+        <td colspan="4" style="border: 1px solid #ededed; border-top: 3px solid #ededed; text-align: right;">
+            <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_cart_cart.net"/>
+        </td>
+        <td style="border: 1px solid #ededed; border-top: 3px solid #ededed; text-align: right;">
+            <f:format.currency>{orderItem.net}</f:format.currency> {orderItem.currency}
+        </td>
+    </tr>
+</f:if>
+<f:if condition="{orderSettings.summary.fields.cart.gross}">
+    <tr>
+        <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+            <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_cart_cart.gross"/>
+        </td>
+        <td style="border: 1px solid #ededed; text-align: right;">
+            <f:format.currency>{orderItem.gross}</f:format.currency> {orderItem.currency}
+        </td>
+    </tr>
+</f:if>
+<f:if condition="{orderSettings.summary.fields.cart.taxes}">
+</f:if>
+
+<f:if condition="{cart.discounts}">
+    <f:for each="{cart.discounts}" as="discount">
+        <f:if condition="{orderSettings.summary.fields.discount.net}">
+            <tr>
+                <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+                    <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_product.discount_net"/>
+                </td>
+                <td style="border: 1px solid #ededed; text-align: right;">
+                    <f:format.currency>{discount.net}</f:format.currency> {orderItem.currency}
+                </td>
+            </tr>
+        </f:if>
+    </f:for>
+    <f:for each="{cart.discounts}" as="discount">
+        <f:if condition="{orderSettings.summary.fields.discount.gross}">
+            <tr>
+                <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+                    <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_product.discount_gross"/>
+                </td>
+                <td style="border: 1px solid #ededed; text-align: right;">
+                    <f:format.currency>{discount.gross}</f:format.currency> {orderItem.currency}
+                </td>
+            </tr>
+        </f:if>
+    </f:for>
+    <f:for each="{cart.discounts}" as="discount">
+        <f:if condition="{orderSettings.summary.fields.discount.taxes}">
+        </f:if>
+    </f:for>
+</f:if>
+
+<f:if condition="{orderSettings.summary.fields.service.net}">
+    <tr>
+        <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+            <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_item.order_shipping"/>: {orderItem.shipping.name}
+        </td>
+        <td style="border: 1px solid #ededed; text-align: right;">
+            <f:format.currency>{orderItem.orderShipping.net}</f:format.currency> {orderItem.currency}
+        </td>
+    </tr>
+</f:if>
+<f:if condition="{orderSettings.summary.fields.service.gross}">
+    <tr>
+        <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+            <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_item.order_shipping"/>: {orderItem.shipping.name}
+        </td>
+        <td style="border: 1px solid #ededed; text-align: right;">
+            <f:format.currency>{orderItem.orderShipping.gross}</f:format.currency> {orderItem.currency}
+        </td>
+    </tr>
+</f:if>
+<f:if condition="{orderSettings.summary.fields.service.taxes}">
+</f:if>
+
+<f:if condition="{orderSettings.summary.fields.service.net}">
+    <tr>
+        <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+            <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_item.order_payment"/>: {orderItem.payment.name}
+        </td>
+        <td style="border: 1px solid #ededed; text-align: right;">
+            <f:format.currency>{orderItem.orderPayment.net}</f:format.currency> {orderItem.currency}
+        </td>
+    </tr>
+</f:if>
+<f:if condition="{orderSettings.summary.fields.service.gross}">
+    <tr>
+        <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+            <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_item.order_payment"/>: {orderItem.payment.name}
+        </td>
+        <td style="border: 1px solid #ededed; text-align: right;">
+            <f:format.currency>{orderItem.payment.gross}</f:format.currency> {orderItem.currency}
+        </td>
+    </tr>
+</f:if>
+<f:if condition="{orderSettings.summary.fields.service.taxes}">
+</f:if>
+
+<f:if condition="{orderSettings.summary.fields.total.net}">
+    <tr>
+        <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+            <b><f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_product.total_net"/></b>
+        </td>
+        <td style="border: 1px solid #ededed; text-align: right;">
+            <b><f:format.currency>{orderItem.totalNet}</f:format.currency> {orderItem.currency}</b>
+        </td>
+    </tr>
+</f:if>
+<f:if condition="{orderSettings.summary.fields.total.gross}">
+    <tr>
+        <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+            <b><f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_product.total_gross"/></b>
+        </td>
+        <td style="border: 1px solid #ededed; text-align: right;">
+            <b><f:format.currency>{orderItem.totalGross}</f:format.currency> {orderItem.currency}</b>
+        </td>
+    </tr>
+</f:if>
+<f:if condition="{orderSettings.summary.fields.total.taxes}">
+</f:if>
