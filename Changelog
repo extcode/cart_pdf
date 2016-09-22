@@ -1,3 +1,9 @@
+1.0.1
+    2016-09-22
+    Daniel Lorenz <daniel.lorenz@extco.de>
+
+    * BUGFIX #1: remove not used log manager
+
 1.0.0
     2016-09-21
     Daniel Lorenz <daniel.lorenz@extco.de>

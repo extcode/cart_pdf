@@ -33,13 +33,6 @@ class PdfService
     protected $objectManager;
 
     /**
-     * Log Manager
-     *
-     * @var \TYPO3\CMS\Core\Log\LogManager
-     */
-    protected $logManager;
-
-    /**
      * Configuration Manager
      *
      * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManager
@@ -146,19 +139,6 @@ class PdfService
         \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager $persistenceManager
     ) {
         $this->persistenceManager = $persistenceManager;
-    }
-
-    /**
-     * Inject the Log Manager
-     *
-     * @param \TYPO3\CMS\Core\Log\LogManagerInterface $logḾanager
-     *
-     * @return void
-     */
-    public function injectLog(
-        \TYPO3\CMS\Core\Log\LogManagerInterface $logḾanager
-    ) {
-        $this->logManager = $logḾanager;
     }
 
     /**
