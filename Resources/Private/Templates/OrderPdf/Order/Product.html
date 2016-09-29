@@ -1,0 +1,19 @@
+{namespace cart=Extcode\Cart\ViewHelpers}
+
+<tr>
+    <td width="32mm" style="border: 1px solid #ededed;">
+        {product.sku}
+    </td>
+    <td width="70mm" style="border: 1px solid #ededed;">
+        {product.title}
+    </td>
+    <td width="26mm" style="border: 1px solid #ededed; text-align: right;">
+        <f:format.currency>{product.price}</f:format.currency> {orderItem.currency}
+    </td>
+    <td width="13mm" style="border: 1px solid #ededed; text-align: right;">
+        {product.count}
+    </td>
+    <td width="26mm" style="border: 1px solid #ededed; text-align: right;">
+        <f:format.currency>{product.gross}</f:format.currency> {orderItem.currency}
+    </td>
+</tr>

@@ -1,3 +1,10 @@
+1.1.0
+    2016-09-29
+    Daniel Lorenz <daniel.lorenz@extco.de>
+
+    * TASK #2: add configuration for order confirmation and delivery pdf
+    * TASK #3: generalize PDF-generator actions
+
 1.0.1
     2016-09-22
     Daniel Lorenz <daniel.lorenz@extco.de>

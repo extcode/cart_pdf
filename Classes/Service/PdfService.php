@@ -61,6 +61,13 @@ class PdfService
     protected $cartSettings;
 
     /**
+     * Pdf Settings
+     *
+     * @var array
+     */
+    protected $pdfSettings;
+
+    /**
      * @var \TYPO3\CMS\Core\Resource\ResourceFactory
      * @inject
      */
@@ -81,7 +88,7 @@ class PdfService
     protected $pdfDemand;
 
     /**
-     * @var \Extcode\Tcpdf\Service\TSPdf
+     * @var \Extcode\TCPDF\Service\TsTCPDF
      */
     protected $pdf;
 
@@ -151,12 +158,12 @@ class PdfService
     }
 
     /**
-     * @param string $pdfType
      * @param \Extcode\Cart\Domain\Model\Order\Item $orderItem
+     * @param string $pdfType
      *
      * @return void
      */
-    public function createPdf($pdfType, \Extcode\Cart\Domain\Model\Order\Item $orderItem)
+    public function createPdf(\Extcode\Cart\Domain\Model\Order\Item $orderItem, $pdfType)
     {
         $this->setPluginSettings($pdfType);
 
@@ -168,22 +175,30 @@ class PdfService
             \TYPO3\CMS\Core\Resource\StorageRepository::class
         );
 
-        $newFileName = $orderItem->getInvoiceNumber() . '.pdf';
+        $getNumber = 'get' . ucfirst($pdfType) . 'Number';
+        $newFileName = $orderItem->$getNumber() . '.pdf';
 
         if (file_exists($pdfFilename)) {
             /** @var \TYPO3\CMS\Core\Resource\ResourceStorage $storage */
             $storage = $storageRepository->findByUid('1');
-            $targetFolder = $storage->getFolder('uploads/tx_cart/incoice_pdf');
+            $targetFolder = $storage->getFolder('uploads/tx_cart/' . $pdfType . '_pdf');
+
+            if (class_exists('\TYPO3\CMS\Core\Resource\DuplicationBehavior')) {
+                $conflictMode = \TYPO3\CMS\Core\Resource\DuplicationBehavior::RENAME;
+            } else {
+                $conflictMode = 'changeName';
+            }
 
             $falFile = $targetFolder->addFile(
                 $pdfFilename,
                 $newFileName,
-                \TYPO3\CMS\Core\Resource\DuplicationBehavior::RENAME
+                $conflictMode
             );
 
             $falFileReference = $this->createFileReferenceFromFalFileObject($falFile);
 
-            $orderItem->addInvoicePdf($falFileReference);
+            $addPdfFunction = 'add' . ucfirst($pdfType) . 'Pdf';
+            $orderItem->$addPdfFunction($falFileReference);
         }
 
         $this->itemRepository->update($orderItem);
@@ -208,24 +223,24 @@ class PdfService
             \Extcode\TCPDF\Service\TsTCPDF::class
         );
         $this->pdf->setSettings($pluginSettings);
-        $this->pdf->setCartPdfType($pdfType);
+        $this->pdf->setCartPdfType($pdfType.'Pdf');
 
-        if (!$this->pluginSettings[$pdfType]['header']) {
+        if (!$this->pdfSettings['header']) {
             $this->pdf->setPrintHeader(false);
         } else {
-            if ($this->pluginSettings[$pdfType]['header']['margin']) {
-                $this->pdf->setHeaderMargin($this->pluginSettings[$pdfType]['header']['margin']);
-                $this->pdf->SetMargins(PDF_MARGIN_LEFT, $this->pluginSettings[$pdfType]['header']['margin'], PDF_MARGIN_RIGHT);
+            if ($this->pdfSettings['header']['margin']) {
+                $this->pdf->setHeaderMargin($this->pdfSettings['header']['margin']);
+                $this->pdf->SetMargins(PDF_MARGIN_LEFT, $this->pdfSettings['header']['margin'], PDF_MARGIN_RIGHT);
             } else {
                 $this->pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
             }
         }
-        if (!$this->pluginSettings[$pdfType]['footer']) {
+        if (!$this->pdfSettings['footer']) {
             $this->pdf->setPrintFooter(false);
         } else {
-            if ($this->pluginSettings[$pdfType]['footer']['margin']) {
-                $this->pdf->setFooterMargin($this->pluginSettings[$pdfType]['footer']['margin']);
-                $this->pdf->setAutoPageBreak(true, $this->pluginSettings[$pdfType]['footer']['margin']);
+            if ($this->pdfSettings['footer']['margin']) {
+                $this->pdf->setFooterMargin($this->pdfSettings['footer']['margin']);
+                $this->pdf->setAutoPageBreak(true, $this->pdfSettings['footer']['margin']);
             } else {
                 $this->pdf->setAutoPageBreak(true, PDF_MARGIN_BOTTOM);
             }
@@ -234,41 +249,41 @@ class PdfService
         $this->pdf->AddPage();
 
         $font = 'Helvetica';
-        if ($this->pluginSettings[$pdfType]['font']) {
-            $font = $this->pluginSettings[$pdfType]['font'] ;
+        if ($this->pdfSettings['font']) {
+            $font = $this->pdfSettings['font'] ;
         }
 
         $fontStyle = '';
-        if ($this->pluginSettings[$pdfType]['fontStyle']) {
-            $fontStyle = $this->pluginSettings[$pdfType]['fontStyle'] ;
+        if ($this->pdfSettings['fontStyle']) {
+            $fontStyle = $this->pdfSettings['fontStyle'] ;
         }
 
         $fontSize = 8;
-        if ($this->pluginSettings[$pdfType]['fontSize']) {
-            $fontSize = $this->pluginSettings[$pdfType]['fontSize'] ;
+        if ($this->pdfSettings['fontSize']) {
+            $fontSize = $this->pdfSettings['fontSize'] ;
         }
 
         $this->pdf->SetFont($font, $fontStyle, $fontSize);
 
         $colorArray = [0,0,0];
-        if ($this->pluginSettings[$pdfType]['drawColor']) {
-            $colorArray = explode(',', $this->pluginSettings[$pdfType]['drawColor']);
+        if ($this->pdfSettings['drawColor']) {
+            $colorArray = explode(',', $this->pdfSettings['drawColor']);
         }
         $this->pdf->setDrawColorArray($colorArray);
 
         $this->renderMarker();
 
-        if ($this->pluginSettings[$pdfType]['letterhead']['html']) {
-            foreach ($this->pluginSettings[$pdfType]['letterhead']['html'] as $partName => $partConfig) {
-                $templatePath = '/' . ucfirst($pdfType) . '/Letterhead/';
+        if ($this->pdfSettings['letterhead']['html']) {
+            foreach ($this->pdfSettings['letterhead']['html'] as $partName => $partConfig) {
+                $templatePath = '/' . ucfirst($pdfType) . 'Pdf/Letterhead/';
                 $assignToView = ['orderItem' => $orderItem];
                 $this->pdf->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
             }
         }
 
-        if ($this->pluginSettings[$pdfType]['body']['before']['html']) {
-            foreach ($this->pluginSettings[$pdfType]['body']['before']['html'] as $partName => $partConfig) {
-                $templatePath = '/' . ucfirst($pdfType) . '/Body/Before/';
+        if ($this->pdfSettings['body']['before']['html']) {
+            foreach ($this->pdfSettings['body']['before']['html'] as $partName => $partConfig) {
+                $templatePath = '/' . ucfirst($pdfType) . 'Pdf/Body/Before/';
                 $assignToView = ['orderItem' => $orderItem];
                 $this->pdf->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
             }
@@ -276,9 +291,9 @@ class PdfService
 
         $this->renderCart($pdfType, $orderItem);
 
-        if ($this->pluginSettings[$pdfType]['body']['after']['html']) {
-            foreach ($this->pluginSettings[$pdfType]['body']['after']['html'] as $partName => $partConfig) {
-                $templatePath = '/' . ucfirst($pdfType) . '/Body/After/';
+        if ($this->pdfSettings['body']['after']['html']) {
+            foreach ($this->pdfSettings['body']['after']['html'] as $partName => $partConfig) {
+                $templatePath = '/' . ucfirst($pdfType) . 'Pdf/Body/After/';
                 $assignToView = ['orderItem' => $orderItem];
                 $this->pdf->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
             }
@@ -326,7 +341,9 @@ class PdfService
      */
     protected function renderCart($pdfType, $orderItem)
     {
-        $config = $this->pluginSettings[$pdfType]['body']['order'];
+        $pdfType .= 'Pdf';
+
+        $config = $this->pdfSettings['body']['order'];
         $config['height'] = 0;
 
         if (!$config['spacingY'] && !$config['positionY']) {
@@ -397,7 +414,7 @@ class PdfService
     protected function renderCartFooter($pdfType, $orderItem)
     {
         $view = $this->pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Footer');
-        $view->assign('orderSettings', $this->pluginSettings[$pdfType]['body']['order']);
+        $view->assign('orderSettings', $this->pdfSettings['body']['order']);
         $view->assign('orderItem', $orderItem);
         $footer = $view->render();
         $footerOut = trim(preg_replace('~[\n]+~', '', $footer));
@@ -426,24 +443,26 @@ class PdfService
                 'cart'
             );
 
+        $this->pdfSettings = $this->pluginSettings[$pdfType . 'Pdf'];
+
         $this->pdfDemand = $this->objectManager->get(
             \Extcode\CartPdf\Domain\Model\Dto\PdfDemand::class
         );
 
         $this->pdfDemand->setFontSize(
-            $this->pluginSettings[$pdfType]['fontSize']
+            $this->pdfSettings['fontSize']
         );
 
         $this->pdfDemand->setDebug(
-            $this->pluginSettings[$pdfType]['debug']
+            $this->pdfSettings['debug']
         );
 
         $this->pdfDemand->setFoldMarksEnabled(
-            boolval($this->pluginSettings[$pdfType]['enableFoldMarks'])
+            boolval($this->pdfSettings['enableFoldMarks'])
         );
 
         $this->pdfDemand->setAddressFieldMarksEnabled(
-            boolval($this->pluginSettings[$pdfType]['enableAddressFieldMarks'])
+            boolval($this->pdfSettings['enableAddressFieldMarks'])
         );
     }
 
