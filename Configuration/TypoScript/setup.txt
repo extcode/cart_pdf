@@ -463,5 +463,7 @@ module.tx_cartpdf {
         }
     }
 
+    orderPdf < plugin.tx_cartpdf.orderPdf
     invoicePdf < plugin.tx_cartpdf.invoicePdf
+    deliveryPdf < plugin.tx_cartpdf.deliveryPdf
 }

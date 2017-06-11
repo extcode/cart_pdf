@@ -18,8 +18,7 @@ namespace Extcode\CartPdf\Domain\Model\Dto;
 /**
  * Data Transfer Object PdfDemand
  *
- * @package cart_pdf
- * @author Daniel Lorenz <ext.cart.pdf@extco.de>
+ * @author Daniel Lorenz <ext.cart@extco.de>
  */
 class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
 {
@@ -65,7 +64,6 @@ class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Set Debug
      *
      * @param int $debug
-     * @return void
      */
     public function setDebug($debug)
     {
@@ -88,7 +86,6 @@ class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Set Font Size
      *
      * @param int $fontSize
-     * @return void
      */
     public function setFontSize($fontSize)
     {
@@ -111,8 +108,6 @@ class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Set Fold Marks are Enabled
      *
      * @param bool $foldMarksEnabled
-     *
-     * @return void
      */
     public function setFoldMarksEnabled($foldMarksEnabled)
     {
@@ -133,8 +128,6 @@ class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
      * Set Address Field Marks are Enabled
      *
      * @param bool $addressFieldMarksEnabled
-     *
-     * @return void
      */
     public function setAddressFieldMarksEnabled($addressFieldMarksEnabled)
     {

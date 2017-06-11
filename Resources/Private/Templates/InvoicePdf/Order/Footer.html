@@ -1,3 +1,20 @@
+{namespace cart=Extcode\Cart\ViewHelpers}
+
+<f:section name="TaxList">
+    <f:for each="{taxes}" as="tax" key="tax_class">
+        <tr>
+            <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+                <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart.tax_class"/>
+                ({tax.taxClass.value} %)
+            </td>
+            <td style="border: 1px solid #ededed; border-top: 3px solid #ededed; text-align: right;">
+                <f:format.currency>{tax.tax}</f:format.currency> {currency}
+            </td>
+        </tr>
+    </f:for>
+</f:section>
+
+
 <f:if condition="{orderSettings.summary.fields.cart.net}">
     <tr>
         <td colspan="4" style="border: 1px solid #ededed; border-top: 3px solid #ededed; text-align: right;">
@@ -19,6 +36,7 @@
     </tr>
 </f:if>
 <f:if condition="{orderSettings.summary.fields.cart.taxes}">
+    <f:render section="TaxList" arguments="{taxClasses: orderItem.taxClass, taxes: orderItem.tax, currency: orderItem.currency}"/>
 </f:if>
 
 <f:if condition="{cart.discounts}">
@@ -48,6 +66,15 @@
     </f:for>
     <f:for each="{cart.discounts}" as="discount">
         <f:if condition="{orderSettings.summary.fields.discount.taxes}">
+            <tr>
+                <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+                    <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart.tax_class"/>
+                    ({discount.taxClass.value} %)
+                </td>
+                <td style="border: 1px solid #ededed; text-align: right;">
+                    <f:format.currency>{discount.tax}</f:format.currency> {orderItem.currency}
+                </td>
+            </tr>
         </f:if>
     </f:for>
 </f:if>
@@ -73,6 +100,15 @@
     </tr>
 </f:if>
 <f:if condition="{orderSettings.summary.fields.service.taxes}">
+    <tr>
+        <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+            <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart.tax_class"/>
+            ({orderItem.shipping.taxClass.value} %)
+        </td>
+        <td style="border: 1px solid #ededed; text-align: right;">
+            <f:format.currency>{orderItem.shipping.tax}</f:format.currency> {orderItem.currency}
+        </td>
+    </tr>
 </f:if>
 
 <f:if condition="{orderSettings.summary.fields.service.net}">
@@ -96,6 +132,15 @@
     </tr>
 </f:if>
 <f:if condition="{orderSettings.summary.fields.service.taxes}">
+    <tr>
+        <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+            <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart.tax_class"/>
+            ({orderItem.payment.taxClass.value} %)
+        </td>
+        <td style="border: 1px solid #ededed; border-top: 3px solid #ededed; text-align: right;">
+            <f:format.currency>{orderItem.payment.tax}</f:format.currency> {orderItem.currency}
+        </td>
+    </tr>
 </f:if>
 
 <f:if condition="{orderSettings.summary.fields.total.net}">

@@ -15,13 +15,10 @@ namespace Extcode\CartPdf\Service;
  * The TYPO3 project - inspiring people to share!
  */
 
-use TYPO3\CMS\Core\SingletonInterface;
-
 /**
  * Pdf Service
  *
- * @package cart_pdf
- * @author Daniel Lorenz <ext.cart.pdf@extco.de>
+ * @author Daniel Lorenz <ext.cart@extco.de>
  */
 class PdfService
 {
@@ -117,8 +114,6 @@ class PdfService
      * Injects the Object Manager
      *
      * @param \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager
-     *
-     * @return void
      */
     public function injectObjectManager(
         \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager
@@ -130,8 +125,6 @@ class PdfService
      * Injects the Configuration Manager
      *
      * @param \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
-     *
-     * @return void
      */
     public function injectConfigurationManager(
         \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
@@ -160,8 +153,6 @@ class PdfService
     /**
      * @param \Extcode\Cart\Domain\Model\Order\Item $orderItem
      * @param string $pdfType
-     *
-     * @return void
      */
     public function createPdf(\Extcode\Cart\Domain\Model\Order\Item $orderItem, $pdfType)
     {
@@ -209,8 +200,6 @@ class PdfService
     /**
      * @param string $pdfType
      * @param \Extcode\Cart\Domain\Model\Order\Item $orderItem
-     *
-     * @return void
      */
     protected function renderPdf($pdfType, $orderItem)
     {
@@ -223,7 +212,7 @@ class PdfService
             \Extcode\TCPDF\Service\TsTCPDF::class
         );
         $this->pdf->setSettings($pluginSettings);
-        $this->pdf->setCartPdfType($pdfType.'Pdf');
+        $this->pdf->setCartPdfType($pdfType . 'Pdf');
 
         if (!$this->pdfSettings['header']) {
             $this->pdf->setPrintHeader(false);
@@ -250,22 +239,22 @@ class PdfService
 
         $font = 'Helvetica';
         if ($this->pdfSettings['font']) {
-            $font = $this->pdfSettings['font'] ;
+            $font = $this->pdfSettings['font'];
         }
 
         $fontStyle = '';
         if ($this->pdfSettings['fontStyle']) {
-            $fontStyle = $this->pdfSettings['fontStyle'] ;
+            $fontStyle = $this->pdfSettings['fontStyle'];
         }
 
         $fontSize = 8;
         if ($this->pdfSettings['fontSize']) {
-            $fontSize = $this->pdfSettings['fontSize'] ;
+            $fontSize = $this->pdfSettings['fontSize'];
         }
 
         $this->pdf->SetFont($font, $fontStyle, $fontSize);
 
-        $colorArray = [0,0,0];
+        $colorArray = [0, 0, 0];
         if ($this->pdfSettings['drawColor']) {
             $colorArray = explode(',', $this->pdfSettings['drawColor']);
         }
@@ -426,21 +415,31 @@ class PdfService
      * Sets Plugin Settings
      *
      * @param string $pdfType
-     *
-     * @return void
      */
     protected function setPluginSettings($pdfType)
     {
+        if (TYPO3_MODE === 'BE') {
+            $pageId = (int)(\TYPO3\CMS\Core\Utility\GeneralUtility::_GET('id')) ? \TYPO3\CMS\Core\Utility\GeneralUtility::_GET('id') : 1;
+
+            $frameworkConfiguration = $this->configurationManager->getConfiguration(
+                \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK
+            );
+            $persistenceConfiguration = ['persistence' => ['storagePid' => $pageId]];
+            $this->configurationManager->setConfiguration(
+                array_merge($frameworkConfiguration, $persistenceConfiguration)
+            );
+        }
+
         $this->pluginSettings =
             $this->configurationManager->getConfiguration(
                 \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
-                'cartpdf'
+                'CartPdf'
             );
 
         $this->cartSettings =
             $this->configurationManager->getConfiguration(
                 \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
-                'cart'
+                'Cart'
             );
 
         $this->pdfSettings = $this->pluginSettings[$pdfType . 'Pdf'];

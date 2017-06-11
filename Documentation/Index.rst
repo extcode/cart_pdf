@@ -35,7 +35,7 @@ EXT: Cart
         Daniel Lorenz
 
     :E-Mail:
-        ext.cart.pdf@extco.de
+        ext.cart@extco.de
 
     :Rendered:
         |today|

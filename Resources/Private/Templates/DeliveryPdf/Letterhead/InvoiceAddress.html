@@ -1,3 +1,18 @@
-{orderItem.billingAddress.firstName} {orderItem.billingAddress.lastName} <br>
-{orderItem.billingAddress.street} <br><br>
-{orderItem.billingAddress.zip} {orderItem.billingAddress.city} <br>
+<f:if condition="{orderItem.shippingAddress}">
+    <f:then>
+        <f:if condition="{orderItem.shippingAddress.company}">
+            {orderItem.shippingAddress.company}<br>
+        </f:if>
+        {orderItem.shippingAddress.firstName} {orderItem.shippingAddress.lastName} <br>
+        {orderItem.shippingAddress.street} <br><br>
+        {orderItem.shippingAddress.zip} {orderItem.shippingAddress.city} <br>
+    </f:then>
+    <f:else>
+        <f:if condition="{orderItem.billingAddress.company}">
+            {orderItem.billingAddress.company}<br>
+        </f:if>
+        {orderItem.billingAddress.firstName} {orderItem.billingAddress.lastName} <br>
+        {orderItem.billingAddress.street} <br><br>
+        {orderItem.billingAddress.zip} {orderItem.billingAddress.city} <br>
+    </f:else>
+</f:if>

@@ -18,8 +18,7 @@ namespace Extcode\CartPdf\Tests\Domain\Model\Dto;
 /**
  * Data Transfer Object PdfDemandTest
  *
- * @package cart_pdf
- * @author Daniel Lorenz <ext.cart.pdf@extco.de>
+ * @author Daniel Lorenz <ext.cart@extco.de>
  */
 class PdfDemandTest extends \TYPO3\CMS\Core\Tests\UnitTestCase
 {
