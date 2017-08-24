@@ -1,3 +1,9 @@
+2.0.1
+    2017-08-24
+    Daniel Lorenz <https://github.com/extcode>
+
+    * BUGFIX #10: rename TypoScript configuration folder
+
 2.0.0
     2017-08-24
     Daniel Lorenz <https://github.com/extcode>
