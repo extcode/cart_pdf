@@ -171,8 +171,8 @@ class PdfService
 
         if (file_exists($pdfFilename)) {
             /** @var \TYPO3\CMS\Core\Resource\ResourceStorage $storage */
-            $storage = $storageRepository->findByUid('1');
-            $targetFolder = $storage->getFolder('uploads/tx_cart/' . $pdfType . '_pdf');
+            $storage = $storageRepository->findByUid($this->pdfSettings['storageRepository']);
+            $targetFolder = $storage->getFolder($this->pdfSettings['storageFolder']);
 
             if (class_exists('\TYPO3\CMS\Core\Resource\DuplicationBehavior')) {
                 $conflictMode = \TYPO3\CMS\Core\Resource\DuplicationBehavior::RENAME;

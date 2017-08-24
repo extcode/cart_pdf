@@ -3,6 +3,8 @@
     Daniel Lorenz <https://github.com/extcode>
 
     * TASK #6: remove compatibility to TYPO3 version 6.2
+    * TASK #4: add possibility to choose the place where the generated pdf should be saved
+    * TASK #7: splitup TypoScript templates
 
 1.2.0
     2017-06-11
