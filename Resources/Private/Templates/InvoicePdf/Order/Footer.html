@@ -39,33 +39,33 @@
     <f:render section="TaxList" arguments="{taxClasses: orderItem.taxClass, taxes: orderItem.tax, currency: orderItem.currency}"/>
 </f:if>
 
-<f:if condition="{cart.discounts}">
-    <f:for each="{cart.discounts}" as="discount">
-        <f:if condition="{orderSettings.summary.fields.discount.net}">
-            <tr>
-                <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
-                    <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_product.discount_net"/>
-                </td>
-                <td style="border: 1px solid #ededed; text-align: right;">
-                    <f:format.currency>{discount.net}</f:format.currency> {orderItem.currency}
-                </td>
-            </tr>
-        </f:if>
-    </f:for>
-    <f:for each="{cart.discounts}" as="discount">
-        <f:if condition="{orderSettings.summary.fields.discount.gross}">
-            <tr>
-                <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
-                    <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_product.discount_gross"/>
-                </td>
-                <td style="border: 1px solid #ededed; text-align: right;">
-                    <f:format.currency>{discount.gross}</f:format.currency> {orderItem.currency}
-                </td>
-            </tr>
-        </f:if>
-    </f:for>
-    <f:for each="{cart.discounts}" as="discount">
-        <f:if condition="{orderSettings.summary.fields.discount.taxes}">
+<f:if condition="{orderItem.discounts}">
+    <f:if condition="{orderSettings.summary.fields.discount.net}">
+        <f:for each="{orderItem.discounts}" as="discount">
+                <tr>
+                    <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+                        <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_product.discount_net"/>
+                    </td>
+                    <td style="border: 1px solid #ededed; text-align: right;">
+                        <f:format.currency>{discount.net}</f:format.currency> {orderItem.currency}
+                    </td>
+                </tr>
+        </f:for>
+    </f:if>
+    <f:if condition="{orderSettings.summary.fields.discount.gross}">
+        <f:for each="{orderItem.discounts}" as="discount">
+                <tr>
+                    <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
+                        <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_product.discount_gross"/>
+                    </td>
+                    <td style="border: 1px solid #ededed; text-align: right;">
+                        <f:format.currency>{discount.gross}</f:format.currency> {orderItem.currency}
+                    </td>
+                </tr>
+        </f:for>
+    </f:if>
+    <f:if condition="{orderSettings.summary.fields.discount.taxes}">
+        <f:for each="{orderItem.discounts}" as="discount">
             <tr>
                 <td colspan="4" style="border: 1px solid #ededed; text-align: right;">
                     <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart.tax_class"/>
@@ -75,8 +75,8 @@
                     <f:format.currency>{discount.tax}</f:format.currency> {orderItem.currency}
                 </td>
             </tr>
-        </f:if>
-    </f:for>
+        </f:for>
+    </f:if>
 </f:if>
 
 <f:if condition="{orderSettings.summary.fields.service.net}">

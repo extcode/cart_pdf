@@ -17,7 +17,7 @@ $EM_CONF[$_EXTKEY] = [
     'modify_tables' => '',
     'clearCacheOnLoad' => 0,
     'lockType' => '',
-    'version' => '1.2.0',
+    'version' => '1.3.0',
     'constraints' => [
         'depends' => [
             'typo3' => '6.2.0-8.7.99',
@@ -27,10 +27,5 @@ $EM_CONF[$_EXTKEY] = [
         ],
         'conflicts' => [],
         'suggests' => [],
-    ],
-    'autoload' => [
-        'psr-4' => [
-            'Extcode\\CartPdf\\' => 'Classes',
-        ]
     ],
 ];
