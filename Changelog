@@ -1,25 +1,31 @@
+2.0.0
+    2017-08-24
+    Daniel Lorenz <https://github.com/extcode>
+
+    * TASK #6: remove compatibility to TYPO3 version 6.2
+
 1.2.0
     2017-06-11
-    Daniel Lorenz <daniel.lorenz@extco.de>
+    Daniel Lorenz <https://github.com/extcode>
 
     * template improvements
     * add travis ci and gitlab ci testing configurations
 
 1.1.0
     2016-09-29
-    Daniel Lorenz <daniel.lorenz@extco.de>
+    Daniel Lorenz <https://github.com/extcode>
 
     * TASK #2: add configuration for order confirmation and delivery pdf
     * TASK #3: generalize PDF-generator actions
 
 1.0.1
     2016-09-22
-    Daniel Lorenz <daniel.lorenz@extco.de>
+    Daniel Lorenz <https://github.com/extcode>
 
     * BUGFIX #1: remove not used log manager
 
 1.0.0
     2016-09-21
-    Daniel Lorenz <daniel.lorenz@extco.de>
+    Daniel Lorenz <https://github.com/extcode>
 
     * TASK: release cart_pdf
