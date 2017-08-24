@@ -5,6 +5,12 @@
     * TASK #6: remove compatibility to TYPO3 version 6.2
     * TASK #4: add possibility to choose the place where the generated pdf should be saved
     * TASK #7: splitup TypoScript templates
+    
+1.3.0
+    2017-08-24
+    Daniel Lorenz <daniel.lorenz@extco.de>
+
+    * TASK #8: use order item discounts in order and invoice documents
 
 1.2.0
     2017-06-11
