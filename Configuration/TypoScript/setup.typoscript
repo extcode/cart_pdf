@@ -1,0 +1,37 @@
+plugin.tx_cartpdf {
+    view {
+        templateRootPaths {
+            0 = {$plugin.tx_cartpdf.view.templateRootPath}
+        }
+        partialRootPaths {
+            0 = {$plugin.tx_cartpdf.view.partialRootPath}
+        }
+        layoutRootPaths {
+            0 = {$plugin.tx_cartpdf.view.layoutRootPath}
+        }
+    }
+}
+
+module.tx_cartpdf {
+    view {
+        templateRootPaths {
+            0 = {$module.tx_cartpdf.view.templateRootPath}
+        }
+        partialRootPaths {
+            0 = {$module.tx_cartpdf.view.partialRootPath}
+        }
+        layoutRootPaths {
+            0 = {$module.tx_cartpdf.view.layoutRootPath}
+        }
+    }
+}
+
+plugin.tx_cart {
+    finishers {
+        order {
+            350 {
+                class = Extcode\CartPdf\Domain\Finisher\Order\DocumentFinisher
+            }
+        }
+    }
+}
