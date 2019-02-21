@@ -16,28 +16,24 @@
         "issues": "https://github.com/extcode/cart_pdf/issues"
     },
     "require": {
-        "php": ">=5.6.0",
-        "typo3/cms": "^7.6 || ^8.7",
-        "extcode/cart": "^4.0",
-        "extcode/tcpdf": "^0.4"
+        "php": ">=7.0.0 <7.3",
+        "typo3/cms-core": "^8.7",
+        "extcode/cart": "^5.3",
+        "extcode/tcpdf": "^1.0"
     },
     "require-dev": {
-        "nimut/testing-framework": "^1.0",
-        "phpunit/phpunit": "~4.8.0",
-        "friendsofphp/php-cs-fixer": "^2.0"
+        "nimut/testing-framework": "^2.0 || ^3.0 || ^4.0",
+        "friendsofphp/php-cs-fixer": "^2.0",
+        "helmich/typo3-typoscript-lint": "^1.4"
     },
     "autoload": {
         "psr-4": {
             "Extcode\\CartPdf\\": "Classes"
         }
     },
-    "autoload-dev": {
-        "psr-4": {
-            "Extcode\\CartPdf\\Tests\\": "Tests"
-        }
-    },
     "replace": {
-        "cart_pdf": "self.version"
+        "cart_pdf": "self.version",
+        "extcode/cart-pdf": "self.version"
     },
     "config": {
         "vendor-dir": ".Build/vendor",
@@ -51,8 +47,10 @@
     },
     "extra": {
         "typo3/cms": {
+            "extension-key": "cart_pdf",
             "cms-package-dir": "{$vendor-dir}/typo3/cms",
-            "web-dir": ".Build/Web"
+            "app-dir": ".Build",
+            "web-dir": ".Build/public"
         }
     }
 }

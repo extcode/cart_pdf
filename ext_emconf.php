@@ -1,6 +1,6 @@
 <?php
 
-$EM_CONF[$_EXTKEY] = [
+$EM_CONF['cart_pdf'] = [
     'title' => 'Cart - PDF',
     'description' => 'Shopping Cart(s) for TYPO3 - PDF Renderer for Invoices and Delivery Notes',
     'category' => 'services',
@@ -17,13 +17,12 @@ $EM_CONF[$_EXTKEY] = [
     'modify_tables' => '',
     'clearCacheOnLoad' => 0,
     'lockType' => '',
-    'version' => '2.0.1',
+    'version' => '3.0.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '7.6.0-8.7.99',
-            'php' => '5.6.0',
-            'cart' => '3.1.0',
-            'tcpdf' => '0.4.0',
+            'typo3' => '8.7.0-8.7.99',
+            'cart' => '5.3.0',
+            'tcpdf' => '1.0.0',
         ],
         'conflicts' => [],
         'suggests' => [],

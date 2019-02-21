@@ -2,64 +2,34 @@
 
 namespace Extcode\CartPdf\Service;
 
-/**
- * This file is part of the TYPO3 CMS project.
- *
- * It is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License, either version 2
- * of the License, or any later version.
- *
- * For the full copyright and license information, please read the
- * LICENSE.txt file that was distributed with this source code.
- *
- * The TYPO3 project - inspiring people to share!
- */
-
-/**
- * Pdf Service
- *
- * @author Daniel Lorenz <ext.cart@extco.de>
- */
 class PdfService
 {
     /**
-     * Object Manager
-     *
      * @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface
      */
     protected $objectManager;
 
     /**
-     * Configuration Manager
-     *
      * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManager
      */
     protected $configurationManager;
 
     /**
-     * Persistence Manager
-     *
      * @var \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager
      */
     protected $persistenceManager;
 
     /**
-     * Plugin Settings
-     *
      * @var array
      */
     protected $pluginSettings;
 
     /**
-     * Cart Settings
-     *
      * @var array
      */
     protected $cartSettings;
 
     /**
-     * Pdf Settings
-     *
      * @var array
      */
     protected $pdfSettings;
@@ -71,15 +41,11 @@ class PdfService
     protected $resourceFactory;
 
     /**
-     * Order Item Repository
-     *
      * @var \Extcode\Cart\Domain\Repository\Order\ItemRepository
      */
     protected $itemRepository;
 
     /**
-     * Data Transfer Object PdfDemand
-     *
      * @var \Extcode\CartPdf\Domain\Model\Dto\PdfDemand
      */
     protected $pdfDemand;
@@ -97,22 +63,16 @@ class PdfService
     protected $pdf_path = 'typo3temp/cart_pdf/';
 
     /**
-     * PDF Filename
-     *
      * @var string
      */
     protected $pdf_filename = 'test';
 
     /**
-     * Enable/Disable Border for debugging
-     *
      * @var int
      */
     protected $border = 1;
 
     /**
-     * Injects the Object Manager
-     *
      * @param \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager
      */
     public function injectObjectManager(
@@ -122,8 +82,6 @@ class PdfService
     }
 
     /**
-     * Injects the Configuration Manager
-     *
      * @param \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
      */
     public function injectConfigurationManager(
@@ -412,8 +370,6 @@ class PdfService
     }
 
     /**
-     * Sets Plugin Settings
-     *
      * @param string $pdfType
      */
     protected function setPluginSettings($pdfType)

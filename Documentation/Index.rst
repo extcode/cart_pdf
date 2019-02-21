@@ -18,39 +18,45 @@ EXT: Cart
 
 .. only:: html
 
-    :Version:
-        |release|
+   :Classification:
+      cart
 
-    :Sprache:
-        de
+   :Version:
+      |release|
 
-    :Beschreibung:
-        CartPdf fügt die Möglichkeit Rechnungen, Lieferscheine oder andere Dokumente zu Bestellungen der Cart Erweiterung
-        zu generieren.
+   :Language:
+      en
 
-    :Keywords:
-        cart, shop, shopping, e-commerce, ecommerce, checkout, pdf, invoice
+   :Description:
+      Cart is a small but powerful extension which "solely" adds a shopping cart to your TYPO3 installation.
+      Cart Pdf provides the possibility to generate PDF documents for order confirmations, invoices or delivery notes.
+      The documents will be saved to the order and can downloades from frontend and backend or send by email.
 
-    :Autor:
-        Daniel Lorenz
+   :Keywords:
+      cart, shop, pdf, invoice
 
-    :E-Mail:
-        ext.cart@extco.de
+   :Autor:
+      Daniel Gohlke
 
-    :Rendered:
-        |today|
+   :E-Mail:
+      ext.cart@extco.de
 
-    The content of this document is related to TYPO3,
-    a GNU/GPL CMS/Framework available from `www.typo3.org <https://typo3.org/>`__.
+   :License:
+      This document is published under the Open Publication License
+      available from http://www.opencontent.org/openpub/
 
-    **Inhaltsverzeichnis**
+   :Rendered:
+      |today|
+
+   The content of this document is related to TYPO3,
+   a GNU/GPL CMS/Framework available from `www.typo3.org <https://typo3.org/>`__.
+
+   **Table of Contents**
 
 .. toctree::
-    :maxdepth: 5
-    :titlesonly:
+   :maxdepth: 5
+   :titlesonly:
 
-    Introduction/Index
-    EditorManual/Index
-    DeveloperManual/Index
-    AdministratorManual/Index
-    Misc/Index
+   Introduction/Index
+   AdministratorManual/Index
+   Changelog/Index
