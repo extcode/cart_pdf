@@ -1,63 +1,79 @@
 <?php
-
+declare(strict_types=1);
 namespace Extcode\CartPdf\Service;
+
+/*
+ * This file is part of the package extcode/cart-pdf.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
+use Extcode\Cart\Domain\Repository\Order\ItemRepository as OrderItemRepository;
+use Extcode\CartPdf\Domain\Model\Dto\PdfDemand;
+use Extcode\TCPDF\Service\TsTCPDF;
+use TYPO3\CMS\Core\Resource\File;
+use TYPO3\CMS\Core\Resource\ResourceFactory;
+use TYPO3\CMS\Core\Resource\StorageRepository;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
+use TYPO3\CMS\Extbase\Domain\Model\FileReference;
+use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 class PdfService
 {
     /**
-     * @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface
-     */
-    protected $objectManager;
-
-    /**
-     * @var \TYPO3\CMS\Extbase\Configuration\ConfigurationManager
+     * @var ConfigurationManager
      */
     protected $configurationManager;
 
     /**
-     * @var \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager
+     * @var PersistenceManager
      */
     protected $persistenceManager;
 
     /**
-     * @var array
+     * @var StorageRepository
      */
-    protected $pluginSettings;
+    protected $storageRepository;
 
     /**
      * @var array
      */
-    protected $cartSettings;
+    protected $pluginSettings = [];
 
     /**
      * @var array
      */
-    protected $pdfSettings;
+    protected $cartSettings = [];
 
     /**
-     * @var \TYPO3\CMS\Core\Resource\ResourceFactory
-     * @inject
+     * @var array
+     */
+    protected $pdfSettings = [];
+
+    /**
+     * @var ResourceFactory
      */
     protected $resourceFactory;
 
     /**
-     * @var \Extcode\Cart\Domain\Repository\Order\ItemRepository
+     * @var OrderItemRepository
      */
-    protected $itemRepository;
+    protected $orderItemRepository;
 
     /**
-     * @var \Extcode\CartPdf\Domain\Model\Dto\PdfDemand
+     * @var PdfDemand
      */
     protected $pdfDemand;
 
     /**
-     * @var \Extcode\TCPDF\Service\TsTCPDF
+     * @var TsTCPDF
      */
     protected $pdf;
 
     /**
-     * PDF Path
-     *
      * @var string
      */
     protected $pdf_path = 'typo3temp/cart_pdf/';
@@ -65,71 +81,44 @@ class PdfService
     /**
      * @var string
      */
-    protected $pdf_filename = 'test';
+    protected $pdfFilename = 'test';
 
     /**
      * @var int
      */
     protected $border = 1;
 
-    /**
-     * @param \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager
-     */
-    public function injectObjectManager(
-        \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager
-    ) {
-        $this->objectManager = $objectManager;
-    }
-
-    /**
-     * @param \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
-     */
-    public function injectConfigurationManager(
-        \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager
+    public function __construct(
+        ConfigurationManager $configurationManager,
+        OrderItemRepository $orderItemRepository,
+        PersistenceManager $persistenceManager,
+        ResourceFactory $resourceFactory,
+        StorageRepository $storageRepository
     ) {
         $this->configurationManager = $configurationManager;
-    }
-
-    /**
-     * @param \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager $persistenceManager
-     */
-    public function injectPersistenceManager(
-        \TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager $persistenceManager
-    ) {
+        $this->orderItemRepository = $orderItemRepository;
+        $this->resourceFactory = $resourceFactory;
         $this->persistenceManager = $persistenceManager;
+        $this->storageRepository = $storageRepository;
     }
 
     /**
-     * @param \Extcode\Cart\Domain\Repository\Order\ItemRepository $itemRepository
-     */
-    public function injectItemRepository(
-        \Extcode\Cart\Domain\Repository\Order\ItemRepository $itemRepository
-    ) {
-        $this->itemRepository = $itemRepository;
-    }
-
-    /**
-     * @param \Extcode\Cart\Domain\Model\Order\Item $orderItem
+     * @param OrderItem $orderItem
      * @param string $pdfType
      */
-    public function createPdf(\Extcode\Cart\Domain\Model\Order\Item $orderItem, $pdfType)
+    public function createPdf(OrderItem $orderItem, string $pdfType): void
     {
         $this->setPluginSettings($pdfType);
 
         $pdfFilename = '/tmp/tempfile.pdf';
 
-        $this->renderPdf($pdfType, $orderItem);
-
-        $storageRepository = $this->objectManager->get(
-            \TYPO3\CMS\Core\Resource\StorageRepository::class
-        );
+        $this->renderPdf($orderItem, $pdfType);
 
         $getNumber = 'get' . ucfirst($pdfType) . 'Number';
         $newFileName = $orderItem->$getNumber() . '.pdf';
 
         if (file_exists($pdfFilename)) {
-            /** @var \TYPO3\CMS\Core\Resource\ResourceStorage $storage */
-            $storage = $storageRepository->findByUid($this->pdfSettings['storageRepository']);
+            $storage = $this->storageRepository->findByUid($this->pdfSettings['storageRepository']);
             $targetFolder = $storage->getFolder($this->pdfSettings['storageFolder']);
 
             if (class_exists('\TYPO3\CMS\Core\Resource\DuplicationBehavior')) {
@@ -150,24 +139,19 @@ class PdfService
             $orderItem->$addPdfFunction($falFileReference);
         }
 
-        $this->itemRepository->update($orderItem);
-        // Not neccessary since 6.2
+        $this->orderItemRepository->update($orderItem);
         $this->persistenceManager->persistAll();
     }
 
-    /**
-     * @param string $pdfType
-     * @param \Extcode\Cart\Domain\Model\Order\Item $orderItem
-     */
-    protected function renderPdf($pdfType, $orderItem)
+    protected function renderPdf(OrderItem $orderItem, string $pdfType): void
     {
         $pluginSettings = $this->configurationManager->getConfiguration(
-            \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
+            ConfigurationManager::CONFIGURATION_TYPE_FRAMEWORK,
             'cartpdf'
         );
 
-        $this->pdf = $this->objectManager->get(
-            \Extcode\TCPDF\Service\TsTCPDF::class
+        $this->pdf = GeneralUtility::makeInstance(
+            TsTCPDF::class
         );
         $this->pdf->setSettings($pluginSettings);
         $this->pdf->setCartPdfType($pdfType . 'Pdf');
@@ -236,7 +220,7 @@ class PdfService
             }
         }
 
-        $this->renderCart($pdfType, $orderItem);
+        $this->renderCart($orderItem, $pdfType);
 
         if ($this->pdfSettings['body']['after']['html']) {
             foreach ($this->pdfSettings['body']['after']['html'] as $partName => $partConfig) {
@@ -251,10 +235,7 @@ class PdfService
         $this->pdf->Output($pdfFilename, 'F');
     }
 
-    /**
-     *
-     */
-    protected function renderMarker()
+    protected function renderMarker(): void
     {
         if ($this->pdfDemand->getFoldMarksEnabled()) {
             $this->pdf->SetLineWidth(0.1);
@@ -282,11 +263,7 @@ class PdfService
         }
     }
 
-    /**
-     * @param string $pdfType
-     * @param \Extcode\Cart\Domain\Model\Order\Item $orderItem
-     */
-    protected function renderCart($pdfType, $orderItem)
+    protected function renderCart(OrderItem $orderItem, string $pdfType): void
     {
         $pdfType .= 'Pdf';
 
@@ -297,24 +274,16 @@ class PdfService
             $config['spacingY'] = 5;
         }
 
-        $headerOut = $this->renderCartHeader($pdfType, $orderItem);
-        $bodyOut = $this->renderCartBody($pdfType, $orderItem);
-        $footerOut = $this->renderCartFooter($pdfType, $orderItem);
+        $headerOut = $this->renderCartHeader($orderItem, $pdfType);
+        $bodyOut = $this->renderCartBody($orderItem, $pdfType);
+        $footerOut = $this->renderCartFooter($orderItem, $pdfType);
 
         $content = '<table cellpadding="3">' . $headerOut . $bodyOut . $footerOut . '</table>';
 
         $this->pdf->writeHtmlCellWithConfig($content, $config);
     }
 
-    /**
-     * Render Cart Header
-     *
-     * @param string $pdfType
-     * @param \Extcode\Cart\Domain\Model\Order\Item $orderItem
-     *
-     * @return string
-     */
-    protected function renderCartHeader($pdfType, $orderItem)
+    protected function renderCartHeader(OrderItem $orderItem, string $pdfType): string
     {
         $view = $this->pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Header');
         $view->assign('orderItem', $orderItem);
@@ -324,15 +293,7 @@ class PdfService
         return $headerOut;
     }
 
-    /**
-     * Render Cart Body
-     *
-     * @param string $pdfType
-     * @param \Extcode\Cart\Domain\Model\Order\Item $orderItem
-     *
-     * @return string
-     */
-    protected function renderCartBody($pdfType, $orderItem)
+    protected function renderCartBody(OrderItem $orderItem, string $pdfType): string
     {
         $view = $this->pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Product');
         $view->assign('orderItem', $orderItem);
@@ -350,15 +311,7 @@ class PdfService
         return $bodyOut;
     }
 
-    /**
-     * Render Cart Footer
-     *
-     * @param string $pdfType
-     * @param \Extcode\Cart\Domain\Model\Order\Item $orderItem
-     *
-     * @return string
-     */
-    protected function renderCartFooter($pdfType, $orderItem)
+    protected function renderCartFooter(OrderItem $orderItem, string $pdfType): string
     {
         $view = $this->pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Footer');
         $view->assign('orderSettings', $this->pdfSettings['body']['order']);
@@ -372,13 +325,13 @@ class PdfService
     /**
      * @param string $pdfType
      */
-    protected function setPluginSettings($pdfType)
+    protected function setPluginSettings(string $pdfType)
     {
         if (TYPO3_MODE === 'BE') {
-            $pageId = (int)(\TYPO3\CMS\Core\Utility\GeneralUtility::_GET('id')) ? \TYPO3\CMS\Core\Utility\GeneralUtility::_GET('id') : 1;
+            $pageId = (int)(GeneralUtility::_GET('id')) ? GeneralUtility::_GET('id') : 1;
 
             $frameworkConfiguration = $this->configurationManager->getConfiguration(
-                \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK
+                ConfigurationManager::CONFIGURATION_TYPE_FRAMEWORK
             );
             $persistenceConfiguration = ['persistence' => ['storagePid' => $pageId]];
             $this->configurationManager->setConfiguration(
@@ -388,45 +341,38 @@ class PdfService
 
         $this->pluginSettings =
             $this->configurationManager->getConfiguration(
-                \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
+                ConfigurationManager::CONFIGURATION_TYPE_FRAMEWORK,
                 'CartPdf'
             );
 
         $this->cartSettings =
             $this->configurationManager->getConfiguration(
-                \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
+                ConfigurationManager::CONFIGURATION_TYPE_FRAMEWORK,
                 'Cart'
             );
 
         $this->pdfSettings = $this->pluginSettings[$pdfType . 'Pdf'];
 
-        $this->pdfDemand = $this->objectManager->get(
-            \Extcode\CartPdf\Domain\Model\Dto\PdfDemand::class
-        );
+        $this->pdfDemand = GeneralUtility::makeInstance(PdfDemand::class);
 
         $this->pdfDemand->setFontSize(
-            $this->pdfSettings['fontSize']
+            (int)$this->pdfSettings['fontSize']
         );
 
         $this->pdfDemand->setDebug(
-            $this->pdfSettings['debug']
+            (int)$this->pdfSettings['debug']
         );
 
         $this->pdfDemand->setFoldMarksEnabled(
-            boolval($this->pdfSettings['enableFoldMarks'])
+            (bool)$this->pdfSettings['enableFoldMarks']
         );
 
         $this->pdfDemand->setAddressFieldMarksEnabled(
-            boolval($this->pdfSettings['enableAddressFieldMarks'])
+            (bool)$this->pdfSettings['enableAddressFieldMarks']
         );
     }
 
-    /**
-     * @param \TYPO3\CMS\Core\Resource\File $file
-     *
-     * @return \TYPO3\CMS\Extbase\Domain\Model\FileReference
-     */
-    protected function createFileReferenceFromFalFileObject(\TYPO3\CMS\Core\Resource\File $file)
+    protected function createFileReferenceFromFalFileObject(File $file): FileReference
     {
         $falFileReference = $this->resourceFactory->createFileReferenceObject(
             [
@@ -437,8 +383,8 @@ class PdfService
             ]
         );
 
-        $fileReference = $this->objectManager->get(
-            \TYPO3\CMS\Extbase\Domain\Model\FileReference::class
+        $fileReference = GeneralUtility::makeInstance(
+            FileReference::class
         );
 
         $fileReference->setOriginalResource($falFileReference);

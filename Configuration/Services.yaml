@@ -1,0 +1,17 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  Extcode\CartPdf\:
+    resource: '../Classes/*'
+
+  Extcode\CartPdf\Service\PdfService:
+    arguments:
+      $configurationManager: '@TYPO3\CMS\Extbase\Configuration\ConfigurationManager'
+      $orderItemRepository: '@Extcode\Cart\Domain\Repository\Order\ItemRepository'
+      $persistenceManager: '@TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager'
+      $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
+      $storageRepository: '@TYPO3\CMS\Core\Resource\StorageRepository'
+    public: true

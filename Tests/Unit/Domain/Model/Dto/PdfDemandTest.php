@@ -1,23 +1,24 @@
 <?php
-
+declare(strict_types=1);
 namespace Extcode\CartPdf\Tests\Domain\Model\Dto;
 
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use Extcode\CartPdf\Domain\Model\Dto\PdfDemand;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class PdfDemandTest extends UnitTestCase
 {
 
     /**
-     * @var \Extcode\CartPdf\Domain\Model\Dto\PdfDemand
+     * @var PdfDemand
      */
     protected $fixture = null;
 
-    protected function setUp()
+    protected function setUp(): void
     {
-        $this->fixture = new \Extcode\CartPdf\Domain\Model\Dto\PdfDemand();
+        $this->fixture = new PdfDemand();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         unset($this->fixture);
     }

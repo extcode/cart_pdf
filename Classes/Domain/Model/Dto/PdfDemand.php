@@ -1,6 +1,13 @@
 <?php
-
+declare(strict_types=1);
 namespace Extcode\CartPdf\Domain\Model\Dto;
+
+/*
+ * This file is part of the package extcode/cart-pdf.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
 
 class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
 {
@@ -27,7 +34,7 @@ class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * @return int
      */
-    public function getDebug()
+    public function getDebug(): int
     {
         return $this->debug;
     }
@@ -35,7 +42,7 @@ class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * @param int $debug
      */
-    public function setDebug($debug)
+    public function setDebug(int $debug)
     {
         if ($debug) {
             $this->debug = $debug;
@@ -45,7 +52,7 @@ class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * @return int
      */
-    public function getFontSize()
+    public function getFontSize(): int
     {
         return $this->fontSize;
     }
@@ -53,7 +60,7 @@ class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * @param int $fontSize
      */
-    public function setFontSize($fontSize)
+    public function setFontSize(int $fontSize)
     {
         if ($fontSize) {
             $this->fontSize = $fontSize;
@@ -63,7 +70,7 @@ class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * @return bool
      */
-    public function getFoldMarksEnabled()
+    public function getFoldMarksEnabled(): bool
     {
         return $this->foldMarksEnabled;
     }
@@ -71,7 +78,7 @@ class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * @param bool $foldMarksEnabled
      */
-    public function setFoldMarksEnabled($foldMarksEnabled)
+    public function setFoldMarksEnabled(bool $foldMarksEnabled)
     {
         $this->foldMarksEnabled = $foldMarksEnabled;
     }
@@ -79,7 +86,7 @@ class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * @return bool
      */
-    public function getAddressFieldMarksEnabled()
+    public function getAddressFieldMarksEnabled(): bool
     {
         return $this->addressFieldMarksEnabled;
     }
@@ -87,7 +94,7 @@ class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
     /**
      * @param bool $addressFieldMarksEnabled
      */
-    public function setAddressFieldMarksEnabled($addressFieldMarksEnabled)
+    public function setAddressFieldMarksEnabled(bool $addressFieldMarksEnabled)
     {
         $this->addressFieldMarksEnabled = $addressFieldMarksEnabled;
     }
