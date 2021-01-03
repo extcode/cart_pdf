@@ -8,3 +8,4 @@ Configuration
    :titlesonly:
 
    Main/Index
+   Services/Index

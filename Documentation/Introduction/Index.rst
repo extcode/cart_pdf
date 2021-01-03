@@ -9,4 +9,3 @@ Einführung
 
     Support/Index
     Sponsoring/Index
-    NoteOfThanks/Index

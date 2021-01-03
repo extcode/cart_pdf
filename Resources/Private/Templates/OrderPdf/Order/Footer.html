@@ -20,7 +20,7 @@
             <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_cart_cart.net"/>
         </td>
         <td style="border: 1px solid #ededed; border-top: 3px solid #ededed; text-align: right;">
-            <f:format.currency>{orderItem.net}</f:format.currency> {orderItem.currency}
+            <f:format.currency>{orderItem.net}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw>
         </td>
     </tr>
 </f:if>
@@ -30,7 +30,7 @@
             <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_cart_cart.gross"/>
         </td>
         <td style="border: 1px solid #ededed; text-align: right;">
-            <f:format.currency>{orderItem.gross}</f:format.currency> {orderItem.currency}
+            <f:format.currency>{orderItem.gross}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw>
         </td>
     </tr>
 </f:if>
@@ -46,7 +46,7 @@
                     <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_product.discount_net"/>
                 </td>
                 <td style="border: 1px solid #ededed; text-align: right;">
-                    <f:format.currency>{discount.net}</f:format.currency> {orderItem.currency}
+                    <f:format.currency>{discount.net}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw>
                 </td>
             </tr>
         </f:for>
@@ -58,7 +58,7 @@
                     <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_product.discount_gross"/>
                 </td>
                 <td style="border: 1px solid #ededed; text-align: right;">
-                    <f:format.currency>{discount.gross}</f:format.currency> {orderItem.currency}
+                    <f:format.currency>{discount.gross}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw>
                 </td>
             </tr>
         </f:for>
@@ -71,7 +71,7 @@
                     ({discount.taxClass.value} %)
                 </td>
                 <td style="border: 1px solid #ededed; text-align: right;">
-                    <f:format.currency>{discount.tax}</f:format.currency> {orderItem.currency}
+                    <f:format.currency>{discount.tax}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw>
                 </td>
             </tr>
         </f:for>
@@ -84,7 +84,7 @@
             <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_item.order_shipping"/>: {orderItem.shipping.name}
         </td>
         <td style="border: 1px solid #ededed; text-align: right;">
-            <f:format.currency>{orderItem.shipping.net}</f:format.currency> {orderItem.currency}
+            <f:format.currency>{orderItem.shipping.net}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw>
         </td>
     </tr>
 </f:if>
@@ -94,7 +94,7 @@
             <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_item.order_shipping"/>: {orderItem.shipping.name}
         </td>
         <td style="border: 1px solid #ededed; text-align: right;">
-            <f:format.currency>{orderItem.shipping.gross}</f:format.currency> {orderItem.currency}
+            <f:format.currency>{orderItem.shipping.gross}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw>
         </td>
     </tr>
 </f:if>
@@ -105,7 +105,7 @@
             ({orderItem.shipping.taxClass.value} %)
         </td>
         <td style="border: 1px solid #ededed; text-align: right;">
-            <f:format.currency>{orderItem.shipping.tax}</f:format.currency> {orderItem.currency}
+            <f:format.currency>{orderItem.shipping.tax}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw>
         </td>
     </tr>
 </f:if>
@@ -116,7 +116,7 @@
             <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_item.order_payment"/>: {orderItem.payment.name}
         </td>
         <td style="border: 1px solid #ededed; text-align: right;">
-            <f:format.currency>{orderItem.payment.net}</f:format.currency> {orderItem.currency}
+            <f:format.currency>{orderItem.payment.net}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw>
         </td>
     </tr>
 </f:if>
@@ -126,7 +126,7 @@
             <f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_item.order_payment"/>: {orderItem.payment.name}
         </td>
         <td style="border: 1px solid #ededed; text-align: right;">
-            <f:format.currency>{orderItem.payment.gross}</f:format.currency> {orderItem.currency}
+            <f:format.currency>{orderItem.payment.gross}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw>
         </td>
     </tr>
 </f:if>
@@ -137,7 +137,7 @@
             ({orderItem.payment.taxClass.value} %)
         </td>
         <td style="border: 1px solid #ededed; border-top: 3px solid #ededed; text-align: right;">
-            <f:format.currency>{orderItem.payment.tax}</f:format.currency> {orderItem.currency}
+            <f:format.currency>{orderItem.payment.tax}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw>
         </td>
     </tr>s
 </f:if>
@@ -148,7 +148,7 @@
             <b><f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_product.total_net"/></b>
         </td>
         <td style="border: 1px solid #ededed; text-align: right;">
-            <b><f:format.currency>{orderItem.totalNet}</f:format.currency> {orderItem.currency}</b>
+            <b><f:format.currency>{orderItem.totalNet}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw></b>
         </td>
     </tr>
 </f:if>
@@ -158,7 +158,7 @@
             <b><f:translate key="LLL:EXT:cart/Resources/Private/Language/locallang.xlf:tx_cart_domain_model_order_product.total_gross"/></b>
         </td>
         <td style="border: 1px solid #ededed; text-align: right;">
-            <b><f:format.currency>{orderItem.totalGross}</f:format.currency> {orderItem.currency}</b>
+            <b><f:format.currency>{orderItem.totalGross}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw></b>
         </td>
     </tr>
 </f:if>

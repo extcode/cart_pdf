@@ -12,8 +12,33 @@
         "PDF",
         "cart"
     ],
+    "authors": [
+        {
+            "name": "Daniel Gohlke",
+            "email": "ext.cart@extco.de",
+            "role": "Developer"
+        }
+    ],
     "support": {
         "issues": "https://github.com/extcode/cart_pdf/issues"
+    },
+    "autoload": {
+        "psr-4": {
+            "Extcode\\CartPdf\\": "Classes"
+        }
+    },
+    "config": {
+        "bin-dir": ".build/bin",
+        "discard-changes": true,
+        "optimize-autoloader": true,
+        "vendor-dir": ".build/vendor"
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "cart_pdf",
+            "app-dir": ".build",
+            "web-dir": ".build/public"
+        }
     },
     "require": {
         "php": ">=7.2.0 <7.5",
@@ -26,30 +51,13 @@
         "friendsofphp/php-cs-fixer": "^2.14",
         "helmich/typo3-typoscript-lint": "^2.0"
     },
-    "autoload": {
-        "psr-4": {
-            "Extcode\\CartPdf\\": "Classes"
-        }
-    },
     "replace": {
         "extcode/cart-pdf": "self.version"
     },
-    "config": {
-        "vendor-dir": ".Build/vendor",
-        "bin-dir": ".Build/bin"
-    },
     "scripts": {
         "post-autoload-dump": [
-            "mkdir -p .Build/Web/typo3conf/ext/",
-            "[ -L .Build/Web/typo3conf/ext/cart_pdf ] || ln -snvf ../../../../. .Build/Web/typo3conf/ext/cart_pdf"
+            "mkdir -p .build/public/typo3conf/ext/",
+            "[ -L .build/public/typo3conf/ext/cart_pdf ] || ln -snvf ../../../../. .build/public/typo3conf/ext/cart_pdf"
         ]
-    },
-    "extra": {
-        "typo3/cms": {
-            "extension-key": "cart_pdf",
-            "cms-package-dir": "{$vendor-dir}/typo3/cms",
-            "app-dir": ".Build",
-            "web-dir": ".Build/public"
-        }
     }
 }

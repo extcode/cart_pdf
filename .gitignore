@@ -1,5 +1,7 @@
-.Build
+.build
 composer.lock
+
+Documentation-GENERATED-temp
 
 .php_cs.cache
 .phplint.cache

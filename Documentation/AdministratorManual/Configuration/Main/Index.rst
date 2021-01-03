@@ -13,7 +13,7 @@ Preparation: Folder for PDF files
 
 Furthermore, the folders must be created in which the PDF files are to be stored. The standard
 TypoScript configuration sees folder *tx_cart/order_pdf*, *tx_cart/invoice_pdf* and *tx_cart/delivery_pdf*
-in the fileadmin directory. If another folder should be used, the values ​​are available for each PDF data type
+in the fileadmin directory. If another folder should be used, the values are available for each PDF data type
 storageRepository and storageFolder ready.
 
 .. WARNING::

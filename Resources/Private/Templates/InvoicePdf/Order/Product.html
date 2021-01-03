@@ -8,12 +8,12 @@
         {product.title}
     </td>
     <td width="26mm" style="border: 1px solid #ededed; text-align: right;">
-        <f:format.currency>{product.price}</f:format.currency> {orderItem.currency}
+        <f:format.currency>{product.price}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw>
     </td>
     <td width="13mm" style="border: 1px solid #ededed; text-align: right;">
         {product.count}
     </td>
     <td width="26mm" style="border: 1px solid #ededed; text-align: right;">
-        <f:format.currency>{product.gross}</f:format.currency> {orderItem.currency}
+        <f:format.currency>{product.gross}</f:format.currency> <f:format.raw>{orderItem.currency}</f:format.raw>
     </td>
 </tr>
