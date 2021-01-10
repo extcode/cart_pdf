@@ -16,10 +16,10 @@
         "issues": "https://github.com/extcode/cart_pdf/issues"
     },
     "require": {
-        "php": ">=7.0.0 <7.3",
+        "php": ">=7.0.0 <7.5",
         "typo3/cms-core": "^8.7",
-        "extcode/cart": "^5.3",
-        "extcode/tcpdf": "^1.0"
+        "extcode/cart": "^5.9",
+        "extcode/tcpdf": "^1.1"
     },
     "require-dev": {
         "nimut/testing-framework": "^2.0 || ^3.0 || ^4.0",
@@ -32,7 +32,6 @@
         }
     },
     "replace": {
-        "cart_pdf": "self.version",
         "extcode/cart-pdf": "self.version"
     },
     "config": {
