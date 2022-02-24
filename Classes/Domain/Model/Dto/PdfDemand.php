@@ -2,14 +2,14 @@
 declare(strict_types=1);
 namespace Extcode\CartPdf\Domain\Model\Dto;
 
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
 /*
  * This file is part of the package extcode/cart-pdf.
  *
  * For the full copyright and license information, please read the
  * LICENSE file that was distributed with this source code.
  */
-
-class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
+class PdfDemand extends AbstractEntity
 {
     /**
      * @var int
