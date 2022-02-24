@@ -17,12 +17,12 @@ $EM_CONF['cart_pdf'] = [
     'modify_tables' => '',
     'clearCacheOnLoad' => 0,
     'lockType' => '',
-    'version' => '5.0.0',
+    'version' => '6.0.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '10.4.0-10.4.99',
-            'cart' => '7.0.0',
-            'tcpdf' => '3.0.0',
+            'typo3' => '11.5.0-11.5.99',
+            'cart' => '8.0.0',
+            'tcpdf' => '4.0.0',
         ],
         'conflicts' => [],
         'suggests' => [],

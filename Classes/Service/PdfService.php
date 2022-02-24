@@ -118,7 +118,7 @@ class PdfService
         $newFileName = $orderItem->$getNumber() . '.pdf';
 
         if (file_exists($pdfFilename)) {
-            $storage = $this->storageRepository->findByUid($this->pdfSettings['storageRepository']);
+            $storage = $this->storageRepository->findByUid(intval($this->pdfSettings['storageRepository']));
             $targetFolder = $storage->getFolder($this->pdfSettings['storageFolder']);
 
             if (class_exists('\TYPO3\CMS\Core\Resource\DuplicationBehavior')) {

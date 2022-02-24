@@ -14,9 +14,9 @@ services:
     tags:
       - name: event.listener
         identifier: 'cart-pdf--process-order-create--document-renderer'
-        event: Extcode\Cart\Event\ProcessOrderCreateEvent
-        after: 'cart--process-order-create--order-number'
-        before: 'cart--process-order-create--email'
+        event: Extcode\Cart\Event\Order\NumberGeneratorEvent
+        after: 'cart--order--create--invoice-number'
+        before: 'cart--order--finish--email'
 
   Extcode\CartPdf\Service\PdfService:
     arguments:

@@ -10,7 +10,7 @@ namespace Extcode\CartPdf\EventListener\ProcessOrderCreate;
  */
 
 use Extcode\Cart\Domain\Repository\Order\ItemRepository as OrderItemRepository;
-use Extcode\Cart\Event\ProcessOrderCreateEvent;
+use Extcode\Cart\Event\Order\NumberGeneratorEvent;
 use Extcode\Cart\Utility\OrderUtility;
 use Extcode\CartPdf\Service\PdfService;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
@@ -61,7 +61,7 @@ class DocumentRenderer
         $this->options = $options;
     }
 
-    public function __invoke(ProcessOrderCreateEvent $event): void
+    public function __invoke(NumberGeneratorEvent $event): void
     {
         $orderItem = $event->getOrderItem();
         $this->settings = $event->getSettings();
@@ -82,9 +82,7 @@ class DocumentRenderer
                 $setterForDate = 'set' . ucfirst($documentType) . 'Date';
 
                 if (!$orderItem->$getterForNumber()) {
-                    $documentNumber = $this->orderUtility->getNumber($this->settings, $documentType);
-
-                    $orderItem->$setterForNumber($documentNumber);
+                    $orderItem->$setterForNumber($orderItem->getOrderNumber());
                     $orderItem->$setterForDate(new \DateTime());
                 }
 
