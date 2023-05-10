@@ -17,6 +17,7 @@ use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\StringUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Domain\Model\FileReference;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
@@ -119,24 +120,29 @@ class PdfService
 
         if (file_exists($pdfFilename)) {
             $storage = $this->storageRepository->findByUid($this->pdfSettings['storageRepository']);
-            $targetFolder = $storage->getFolder($this->pdfSettings['storageFolder']);
 
-            if (class_exists('\TYPO3\CMS\Core\Resource\DuplicationBehavior')) {
-                $conflictMode = \TYPO3\CMS\Core\Resource\DuplicationBehavior::RENAME;
-            } else {
-                $conflictMode = 'changeName';
+            if ($storage) {
+                $targetFolder = $storage->getFolder($this->pdfSettings['storageFolder']);
+
+                if ($targetFolder) {
+                    if (class_exists('\TYPO3\CMS\Core\Resource\DuplicationBehavior')) {
+                        $conflictMode = \TYPO3\CMS\Core\Resource\DuplicationBehavior::RENAME;
+                    } else {
+                        $conflictMode = 'changeName';
+                    }
+
+                    $falFile = $targetFolder->addFile(
+                        $pdfFilename,
+                        $newFileName,
+                        $conflictMode
+                    );
+
+                    $falFileReference = $this->createFileReferenceFromFalFileObject($falFile);
+
+                    $addPdfFunction = 'add' . ucfirst($pdfType) . 'Pdf';
+                    $orderItem->$addPdfFunction($falFileReference);
+                }
             }
-
-            $falFile = $targetFolder->addFile(
-                $pdfFilename,
-                $newFileName,
-                $conflictMode
-            );
-
-            $falFileReference = $this->createFileReferenceFromFalFileObject($falFile);
-
-            $addPdfFunction = 'add' . ucfirst($pdfType) . 'Pdf';
-            $orderItem->$addPdfFunction($falFileReference);
         }
 
         $this->orderItemRepository->update($orderItem);
@@ -156,20 +162,20 @@ class PdfService
         $this->pdf->setSettings($pluginSettings);
         $this->pdf->setCartPdfType($pdfType . 'Pdf');
 
-        if (!$this->pdfSettings['header']) {
+        if (empty($this->pdfSettings['header'])) {
             $this->pdf->setPrintHeader(false);
         } else {
-            if ($this->pdfSettings['header']['margin']) {
+            if (!empty($this->pdfSettings['header']['margin'])) {
                 $this->pdf->setHeaderMargin($this->pdfSettings['header']['margin']);
                 $this->pdf->SetMargins(PDF_MARGIN_LEFT, $this->pdfSettings['header']['margin'], PDF_MARGIN_RIGHT);
             } else {
                 $this->pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
             }
         }
-        if (!$this->pdfSettings['footer']) {
+        if (empty($this->pdfSettings['footer'])) {
             $this->pdf->setPrintFooter(false);
         } else {
-            if ($this->pdfSettings['footer']['margin']) {
+            if (!empty($this->pdfSettings['footer']['margin'])) {
                 $this->pdf->setFooterMargin($this->pdfSettings['footer']['margin']);
                 $this->pdf->setAutoPageBreak(true, $this->pdfSettings['footer']['margin']);
             } else {
@@ -180,31 +186,31 @@ class PdfService
         $this->pdf->AddPage();
 
         $font = 'Helvetica';
-        if ($this->pdfSettings['font']) {
+        if (!empty($this->pdfSettings['font'])) {
             $font = $this->pdfSettings['font'];
         }
 
         $fontStyle = '';
-        if ($this->pdfSettings['fontStyle']) {
+        if (!empty($this->pdfSettings['fontStyle'])) {
             $fontStyle = $this->pdfSettings['fontStyle'];
         }
 
         $fontSize = 8;
-        if ($this->pdfSettings['fontSize']) {
+        if (!empty($this->pdfSettings['fontSize'])) {
             $fontSize = $this->pdfSettings['fontSize'];
         }
 
         $this->pdf->SetFont($font, $fontStyle, $fontSize);
 
         $colorArray = [0, 0, 0];
-        if ($this->pdfSettings['drawColor']) {
+        if (!empty($this->pdfSettings['drawColor'])) {
             $colorArray = explode(',', $this->pdfSettings['drawColor']);
         }
         $this->pdf->setDrawColorArray($colorArray);
 
         $this->renderMarker();
 
-        if ($this->pdfSettings['letterhead']['html']) {
+        if (is_array($this->pdfSettings['letterhead']['html'] ?? null)) {
             foreach ($this->pdfSettings['letterhead']['html'] as $partName => $partConfig) {
                 $templatePath = '/' . ucfirst($pdfType) . 'Pdf/Letterhead/';
                 $assignToView = ['orderItem' => $orderItem];
@@ -212,7 +218,7 @@ class PdfService
             }
         }
 
-        if ($this->pdfSettings['body']['before']['html']) {
+        if (is_array($this->pdfSettings['body']['before']['html'] ?? null)) {
             foreach ($this->pdfSettings['body']['before']['html'] as $partName => $partConfig) {
                 $templatePath = '/' . ucfirst($pdfType) . 'Pdf/Body/Before/';
                 $assignToView = ['orderItem' => $orderItem];
@@ -222,7 +228,7 @@ class PdfService
 
         $this->renderCart($orderItem, $pdfType);
 
-        if ($this->pdfSettings['body']['after']['html']) {
+        if (is_array($this->pdfSettings['body']['after']['html'] ?? null)) {
             foreach ($this->pdfSettings['body']['after']['html'] as $partName => $partConfig) {
                 $templatePath = '/' . ucfirst($pdfType) . 'Pdf/Body/After/';
                 $assignToView = ['orderItem' => $orderItem];
@@ -267,10 +273,10 @@ class PdfService
     {
         $pdfType .= 'Pdf';
 
-        $config = $this->pdfSettings['body']['order'];
+        $config = $this->pdfSettings['body']['order'] ?? [];
         $config['height'] = 0;
 
-        if (!$config['spacingY'] && !$config['positionY']) {
+        if (empty($config['spacingY']) && empty($config['positionY'])) {
             $config['spacingY'] = 5;
         }
 
@@ -288,9 +294,8 @@ class PdfService
         $view = $this->pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Header');
         $view->assign('orderItem', $orderItem);
         $header = $view->render();
-        $headerOut = trim(preg_replace('~[\n]+~', '', $header));
 
-        return $headerOut;
+        return trim(preg_replace('~[\n]+~', '', $header));
     }
 
     protected function renderCartBody(OrderItem $orderItem, string $pdfType): string
@@ -301,7 +306,6 @@ class PdfService
         $bodyOut = '';
 
         foreach ($orderItem->getProducts() as $product) {
-            $config['$positionY'] = $this->pdf->GetY();
             $view->assign('product', $product);
             $product = $view->render();
 
@@ -317,9 +321,8 @@ class PdfService
         $view->assign('orderSettings', $this->pdfSettings['body']['order']);
         $view->assign('orderItem', $orderItem);
         $footer = $view->render();
-        $footerOut = trim(preg_replace('~[\n]+~', '', $footer));
 
-        return $footerOut;
+        return trim(preg_replace('~[\n]+~', '', $footer));
     }
 
     /**
@@ -356,19 +359,19 @@ class PdfService
         $this->pdfDemand = GeneralUtility::makeInstance(PdfDemand::class);
 
         $this->pdfDemand->setFontSize(
-            (int)$this->pdfSettings['fontSize']
+            (int)($this->pdfSettings['fontSize'] ?? 11)
         );
 
         $this->pdfDemand->setDebug(
-            (int)$this->pdfSettings['debug']
+            (int)($this->pdfSettings['debug'] ?? 0)
         );
 
         $this->pdfDemand->setFoldMarksEnabled(
-            (bool)$this->pdfSettings['enableFoldMarks']
+            (bool)($this->pdfSettings['enableFoldMarks'] ?? 0)
         );
 
         $this->pdfDemand->setAddressFieldMarksEnabled(
-            (bool)$this->pdfSettings['enableAddressFieldMarks']
+            (bool)($this->pdfSettings['enableAddressFieldMarks'] ?? 0)
         );
     }
 
@@ -377,8 +380,8 @@ class PdfService
         $falFileReference = $this->resourceFactory->createFileReferenceObject(
             [
                 'uid_local' => $file->getUid(),
-                'uid_foreign' => uniqid('NEW_'),
-                'uid' => uniqid('NEW_'),
+                'uid_foreign' => StringUtility::getUniqueId('NEW_'),
+                'uid' => StringUtility::getUniqueId('NEW_'),
                 'crop' => null,
             ]
         );
