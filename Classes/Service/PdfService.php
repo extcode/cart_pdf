@@ -119,10 +119,10 @@ class PdfService
         $newFileName = $orderItem->$getNumber() . '.pdf';
 
         if (file_exists($pdfFilename)) {
-            $storage = $this->storageRepository->findByUid($this->pdfSettings['storageRepository']);
+            $storage = $this->storageRepository->findByUid((int)$this->pdfSettings['storageRepository']);
 
             if ($storage) {
-                $targetFolder = $storage->getFolder($this->pdfSettings['storageFolder']);
+                $targetFolder = $storage->getFolder((string)$this->pdfSettings['storageFolder']);
 
                 if ($targetFolder) {
                     if (class_exists('\TYPO3\CMS\Core\Resource\DuplicationBehavior')) {
@@ -166,8 +166,8 @@ class PdfService
             $this->pdf->setPrintHeader(false);
         } else {
             if (!empty($this->pdfSettings['header']['margin'])) {
-                $this->pdf->setHeaderMargin($this->pdfSettings['header']['margin']);
-                $this->pdf->SetMargins(PDF_MARGIN_LEFT, $this->pdfSettings['header']['margin'], PDF_MARGIN_RIGHT);
+                $this->pdf->setHeaderMargin((int)$this->pdfSettings['header']['margin']);
+                $this->pdf->SetMargins(PDF_MARGIN_LEFT, (float)$this->pdfSettings['header']['margin'], PDF_MARGIN_RIGHT);
             } else {
                 $this->pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
             }
@@ -176,8 +176,8 @@ class PdfService
             $this->pdf->setPrintFooter(false);
         } else {
             if (!empty($this->pdfSettings['footer']['margin'])) {
-                $this->pdf->setFooterMargin($this->pdfSettings['footer']['margin']);
-                $this->pdf->setAutoPageBreak(true, $this->pdfSettings['footer']['margin']);
+                $this->pdf->setFooterMargin((int)$this->pdfSettings['footer']['margin']);
+                $this->pdf->setAutoPageBreak(true, (int)$this->pdfSettings['footer']['margin']);
             } else {
                 $this->pdf->setAutoPageBreak(true, PDF_MARGIN_BOTTOM);
             }
