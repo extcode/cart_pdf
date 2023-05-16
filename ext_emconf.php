@@ -20,9 +20,9 @@ $EM_CONF['cart_pdf'] = [
     'version' => '5.0.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '10.4.0-10.4.99',
-            'cart' => '7.0.0',
-            'tcpdf' => '3.0.0',
+            'typo3' => '10.4.0-11.5.999',
+            'cart' => '7.0.0-8.99.999',
+            'tcpdf' => '3.0.0-3.99.999',
         ],
         'conflicts' => [],
         'suggests' => [],
