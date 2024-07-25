@@ -128,6 +128,8 @@ class TcpdfWrapper extends \TCPDF
         if (!empty($config['file'])) {
             $file = GeneralUtility::getFileAbsFileName($config['file']);
             $view->assign('file', $file);
+            $view->assign('file_base64', base64_encode(file_get_contents($file)));
+            $view->assign('file_mimetype', mime_content_type($file));
 
             if (!empty($config['width'])) {
                 $view->assign('width', $config['width']);
