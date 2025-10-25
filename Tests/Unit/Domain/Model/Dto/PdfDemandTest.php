@@ -26,7 +26,7 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function getDebugInitiallyReturnsZero()
+    public function getDebugInitiallyReturnsZero(): void
     {
         $this->assertSame(
             0,
@@ -37,7 +37,7 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function setDebugSetsDebug()
+    public function setDebugSetsDebug(): void
     {
         $debug = 1;
 
@@ -51,7 +51,7 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function getFontSizeInitiallyReturnsDefaultFontSize()
+    public function getFontSizeInitiallyReturnsDefaultFontSize(): void
     {
         $this->assertSame(
             8,
@@ -62,7 +62,7 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function setFontSizeSetsFontSize()
+    public function setFontSizeSetsFontSize(): void
     {
         $fontSize = 10;
 
@@ -76,7 +76,7 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function getFoldMarksEnabledInitiallyReturnsTrue()
+    public function getFoldMarksEnabledInitiallyReturnsTrue(): void
     {
         $this->assertTrue(
             $this->fixture->getFoldMarksEnabled()
@@ -86,7 +86,7 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function setFoldMarksEnabledSetsFoldMarksEnabled()
+    public function setFoldMarksEnabledSetsFoldMarksEnabled(): void
     {
         $this->fixture->setFoldMarksEnabled(false);
         $this->assertFalse(
@@ -102,7 +102,7 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function getAddressFieldMarksEnabledInitiallyReturnsTrue()
+    public function getAddressFieldMarksEnabledInitiallyReturnsTrue(): void
     {
         $this->assertTrue(
             $this->fixture->getAddressFieldMarksEnabled()
@@ -112,7 +112,7 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function setAddressFieldMarksEnabledSetsAddressFieldMarksEnabled()
+    public function setAddressFieldMarksEnabledSetsAddressFieldMarksEnabled(): void
     {
         $this->fixture->setAddressFieldMarksEnabled(false);
         $this->assertFalse(

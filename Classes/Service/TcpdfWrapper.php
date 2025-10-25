@@ -222,8 +222,8 @@ class TcpdfWrapper extends \TCPDF
         $view->setFormat($format);
 
         if (!empty($this->pdfSettings['view'])) {
-            $view->setLayoutRootPaths($this->pdfSettings['view']['layoutRootPaths']);
-            $view->setPartialRootPaths($this->pdfSettings['view']['partialRootPaths']);
+            $view->getRenderingContext()->getTemplatePaths()->setLayoutRootPaths($this->pdfSettings['view']['layoutRootPaths']);
+            $view->getRenderingContext()->getTemplatePaths()->setPartialRootPaths($this->pdfSettings['view']['partialRootPaths']);
 
             if ($this->pdfSettings['view']['templateRootPaths']) {
                 foreach ($this->pdfSettings['view']['templateRootPaths'] as $pathNameKey => $pathNameValue) {
@@ -234,7 +234,7 @@ class TcpdfWrapper extends \TCPDF
                     $completePath = $templateRootPath . $templatePathAndFileName;
 
                     if (file_exists($completePath)) {
-                        $view->setTemplatePathAndFilename($completePath);
+                        $view->getRenderingContext()->getTemplatePaths()->setTemplatePathAndFilename($completePath);
                     }
                 }
             }
