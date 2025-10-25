@@ -40,8 +40,8 @@
     },
     "require": {
         "php": "^8.2",
-        "typo3/cms-core": "^12.4",
-        "extcode/cart": "^9.0",
+        "typo3/cms-core": "^13.4",
+        "extcode/cart": "^11.5",
         "tecnickcom/tcpdf": "^6.7"
     },
     "replace": {
