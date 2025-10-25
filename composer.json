@@ -42,7 +42,7 @@
         "php": "^8.2",
         "typo3/cms-core": "^13.4",
         "extcode/cart": "^11.5",
-        "tecnickcom/tcpdf": "^6.7"
+        "tecnickcom/tcpdf": "^6.10"
     },
     "replace": {
         "extcode/cart-pdf": "self.version"
