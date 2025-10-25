@@ -256,7 +256,7 @@ class PdfService
         $view->assign('orderItem', $orderItem);
         $header = $view->render();
 
-        return trim(preg_replace('~[\\n]+~', '', $header));
+        return trim(preg_replace('~[\\n]+~', '', $header ?? ''));
     }
 
     protected function renderCartBody(OrderItem $orderItem, string $pdfType): string
@@ -270,7 +270,7 @@ class PdfService
             $view->assign('product', $product);
             $product = $view->render();
 
-            $bodyOut .= trim(preg_replace('~[\\n]+~', '', $product));
+            $bodyOut .= trim(preg_replace('~[\\n]+~', '', $product ?? ''));
         }
 
         return $bodyOut;
@@ -283,7 +283,7 @@ class PdfService
         $view->assign('orderItem', $orderItem);
         $footer = $view->render();
 
-        return trim(preg_replace('~[\\n]+~', '', $footer));
+        return trim(preg_replace('~[\\n]+~', '', $footer ?? ''));
     }
 
     /**
