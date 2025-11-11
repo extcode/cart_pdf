@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/*
+ * (c) 2025 rc design visual concepts (rc-design.at)
+ * _________________________________________________
+ * The TYPO3 project - inspiring people to share!
+ * _________________________________________________
+ */
+
 namespace Extcode\CartPdf\Tests\Domain\Model\Dto;
 
 use Extcode\CartPdf\Domain\Model\Dto\PdfDemand;
@@ -7,11 +16,10 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class PdfDemandTest extends UnitTestCase
 {
-
     /**
      * @var PdfDemand
      */
-    protected $fixture = null;
+    protected $fixture;
 
     protected function setUp(): void
     {
@@ -26,9 +34,9 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function getDebugInitiallyReturnsZero()
+    public function getDebugInitiallyReturnsZero(): void
     {
-        $this->assertSame(
+        self::assertSame(
             0,
             $this->fixture->getDebug()
         );
@@ -37,12 +45,12 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function setDebugSetsDebug()
+    public function setDebugSetsDebug(): void
     {
         $debug = 1;
 
         $this->fixture->setDebug($debug);
-        $this->assertSame(
+        self::assertSame(
             $debug,
             $this->fixture->getDebug()
         );
@@ -51,9 +59,9 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function getFontSizeInitiallyReturnsDefaultFontSize()
+    public function getFontSizeInitiallyReturnsDefaultFontSize(): void
     {
-        $this->assertSame(
+        self::assertSame(
             8,
             $this->fixture->getFontSize()
         );
@@ -62,12 +70,12 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function setFontSizeSetsFontSize()
+    public function setFontSizeSetsFontSize(): void
     {
         $fontSize = 10;
 
         $this->fixture->setFontSize($fontSize);
-        $this->assertSame(
+        self::assertSame(
             $fontSize,
             $this->fixture->getFontSize()
         );
@@ -76,9 +84,9 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function getFoldMarksEnabledInitiallyReturnsTrue()
+    public function getFoldMarksEnabledInitiallyReturnsTrue(): void
     {
-        $this->assertTrue(
+        self::assertTrue(
             $this->fixture->getFoldMarksEnabled()
         );
     }
@@ -86,15 +94,15 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function setFoldMarksEnabledSetsFoldMarksEnabled()
+    public function setFoldMarksEnabledSetsFoldMarksEnabled(): void
     {
         $this->fixture->setFoldMarksEnabled(false);
-        $this->assertFalse(
+        self::assertFalse(
             $this->fixture->getFoldMarksEnabled()
         );
 
         $this->fixture->setFoldMarksEnabled(true);
-        $this->assertTrue(
+        self::assertTrue(
             $this->fixture->getFoldMarksEnabled()
         );
     }
@@ -102,9 +110,9 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function getAddressFieldMarksEnabledInitiallyReturnsTrue()
+    public function getAddressFieldMarksEnabledInitiallyReturnsTrue(): void
     {
-        $this->assertTrue(
+        self::assertTrue(
             $this->fixture->getAddressFieldMarksEnabled()
         );
     }
@@ -112,15 +120,15 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @test
      */
-    public function setAddressFieldMarksEnabledSetsAddressFieldMarksEnabled()
+    public function setAddressFieldMarksEnabledSetsAddressFieldMarksEnabled(): void
     {
         $this->fixture->setAddressFieldMarksEnabled(false);
-        $this->assertFalse(
+        self::assertFalse(
             $this->fixture->getAddressFieldMarksEnabled()
         );
 
         $this->fixture->setAddressFieldMarksEnabled(true);
-        $this->assertTrue(
+        self::assertTrue(
             $this->fixture->getAddressFieldMarksEnabled()
         );
     }

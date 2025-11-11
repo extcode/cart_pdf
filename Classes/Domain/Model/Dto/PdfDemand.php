@@ -1,5 +1,14 @@
 <?php
+
 declare(strict_types=1);
+
+/*
+ * (c) 2025 rc design visual concepts (rc-design.at)
+ * _________________________________________________
+ * The TYPO3 project - inspiring people to share!
+ * _________________________________________________
+ */
+
 namespace Extcode\CartPdf\Domain\Model\Dto;
 
 /*
@@ -9,92 +18,67 @@ namespace Extcode\CartPdf\Domain\Model\Dto;
  * LICENSE file that was distributed with this source code.
  */
 
-class PdfDemand extends \TYPO3\CMS\Extbase\DomainObject\AbstractEntity
+use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
+
+class PdfDemand extends AbstractEntity
 {
-    /**
-     * @var int
-     */
-    protected $debug = 0;
+    protected int $debugMode = 0;
+    protected int $fontSize = 8;
+    protected bool $foldMarksEnabled = true;
+    protected bool $addressFieldMarksEnabled = true;
 
-    /**
-     * @var int
-     */
-    protected $fontSize = 8;
-
-    /**
-     * @var bool
-     */
-    protected $foldMarksEnabled = true;
-
-    /**
-     * @var bool
-     */
-    protected $addressFieldMarksEnabled = true;
-
-    /**
-     * @return int
-     */
-    public function getDebug(): int
+    public function getDebugMode(): int
     {
-        return $this->debug;
+        return $this->debugMode;
     }
 
-    /**
-     * @param int $debug
-     */
-    public function setDebug(int $debug)
+    public function setDebugMode(int $debugMode): void
     {
-        if ($debug) {
-            $this->debug = $debug;
+        if ($debugMode > 0) {
+            $this->debugMode = $debugMode;
         }
     }
 
-    /**
-     * @return int
-     */
+    // Legacy getter for backward compatibility (optional)
+    public function getDebug(): int
+    {
+        return $this->getDebugMode();
+    }
+
+    // Legacy setter for backward compatibility (optional)
+    public function setDebug(int $debug): void
+    {
+        $this->setDebugMode($debug);
+    }
+
     public function getFontSize(): int
     {
         return $this->fontSize;
     }
 
-    /**
-     * @param int $fontSize
-     */
-    public function setFontSize(int $fontSize)
+    public function setFontSize(int $fontSize): void
     {
-        if ($fontSize) {
+        if ($fontSize > 0) {
             $this->fontSize = $fontSize;
         }
     }
 
-    /**
-     * @return bool
-     */
     public function getFoldMarksEnabled(): bool
     {
         return $this->foldMarksEnabled;
     }
 
-    /**
-     * @param bool $foldMarksEnabled
-     */
-    public function setFoldMarksEnabled(bool $foldMarksEnabled)
+    public function setFoldMarksEnabled(bool $foldMarksEnabled): void
     {
         $this->foldMarksEnabled = $foldMarksEnabled;
     }
 
-    /**
-     * @return bool
-     */
     public function getAddressFieldMarksEnabled(): bool
     {
         return $this->addressFieldMarksEnabled;
     }
 
-    /**
-     * @param bool $addressFieldMarksEnabled
-     */
-    public function setAddressFieldMarksEnabled(bool $addressFieldMarksEnabled)
+    public function setAddressFieldMarksEnabled(bool $addressFieldMarksEnabled): void
     {
         $this->addressFieldMarksEnabled = $addressFieldMarksEnabled;
     }

@@ -5,24 +5,60 @@ services:
     public: false
 
   Extcode\CartPdf\:
-    resource: '../Classes/*'
+    resource: "../Classes/*"
+    exclude: "../Classes/Domain/Model/*"
 
-  Extcode\CartPdf\EventListener\ProcessOrderCreate\DocumentRenderer:
-    arguments:
-      $orderItemRepository: '@Extcode\Cart\Domain\Repository\Order\ItemRepository'
-      $persistenceManager: '@TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager'
-    tags:
-      - name: event.listener
-        identifier: 'cart-pdf--process-order-create--document-renderer'
-        event: Extcode\Cart\Event\ProcessOrderCreateEvent
-        after: 'cart--process-order-create--order-number'
-        before: 'cart--process-order-create--email'
-
+  # PdfService muss public sein
   Extcode\CartPdf\Service\PdfService:
+    public: true
     arguments:
       $configurationManager: '@TYPO3\CMS\Extbase\Configuration\ConfigurationManager'
       $orderItemRepository: '@Extcode\Cart\Domain\Repository\Order\ItemRepository'
       $persistenceManager: '@TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager'
       $resourceFactory: '@TYPO3\CMS\Core\Resource\ResourceFactory'
       $storageRepository: '@TYPO3\CMS\Core\Resource\StorageRepository'
-    public: true
+
+  # WICHTIG: ProcessOrderCreate Event-Listener für automatische PDF-Generierung und Nummernvergabe
+  Extcode\CartPdf\EventListener\ProcessOrderCreate\DocumentRenderer:
+    arguments:
+      $orderItemRepository: '@Extcode\Cart\Domain\Repository\Order\ItemRepository'
+      $persistenceManager: '@TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager'
+    tags:
+      - name: event.listener
+        identifier: "cart-pdf--process-order-create--document-renderer"
+        event: Extcode\Cart\Event\ProcessOrderCreateEvent
+        after: "cart--process-order-create--order-number"
+        # after: "rcdesign9--order--create--delivery-number"
+        before: "cart--process-order-create--email"
+
+  # Bedingte Event-Listener mit eindeutigen Service-Namen
+
+  # Für PayPal Neu
+  cart_pdf.event_listener.paypal.document_renderer:
+    class: Extcode\CartPdf\EventListener\Order\Finish\DocumentRenderer
+    arguments:
+      $orderItemRepository: '@Extcode\Cart\Domain\Repository\Order\ItemRepository'
+      $persistenceManager: '@TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager'
+    tags:
+      - name: event.listener
+        identifier: "cart-pdf--order--notify--document-renderer-paypal"
+        event: Extcode\CartPaypal\Event\Order\NotifyEvent
+        before: "cart-paypal--order--notify--email"
+
+  # Für Payone (Fallback)
+  cart_pdf.event_listener.payone.document_renderer:
+    class: Extcode\CartPdf\EventListener\Order\Finish\DocumentRenderer
+    tags:
+      - name: event.listener
+        identifier: "cart-pdf--order--finish--document-renderer-payone"
+        event: Extcode\CartPayone\Event\Order\FinishEvent
+        before: "cart--order--finish--email"
+
+  # Für Standard Cart (Fallback)
+  cart_pdf.event_listener.standard.document_renderer:
+    class: Extcode\CartPdf\EventListener\Order\Finish\DocumentRenderer
+    tags:
+      - name: event.listener
+        identifier: "cart--order--finish--document-renderer"
+        event: Extcode\Cart\Event\Order\FinishEvent
+        before: "cart--order--finish--email"
