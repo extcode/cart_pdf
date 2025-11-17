@@ -25,13 +25,3 @@ module.tx_cartpdf {
         }
     }
 }
-
-plugin.tx_cart {
-    finishers {
-        order {
-            350 {
-                class = Extcode\CartPdf\Domain\Finisher\Order\DocumentFinisher
-            }
-        }
-    }
-}

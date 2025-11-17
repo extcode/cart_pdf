@@ -28,36 +28,28 @@
         }
     },
     "config": {
-        "bin-dir": ".build/bin",
-        "discard-changes": true,
-        "optimize-autoloader": true,
-        "vendor-dir": ".build/vendor"
+        "allow-plugins": {
+            "typo3/cms-composer-installers": false,
+            "typo3/class-alias-loader": false
+        }
     },
     "extra": {
         "typo3/cms": {
-            "extension-key": "cart_pdf",
-            "app-dir": ".build",
-            "web-dir": ".build/public"
+            "extension-key": "cart_pdf"
         }
     },
     "require": {
-        "php": ">=7.2.0 <7.5",
-        "typo3/cms-core": "^10.4",
-        "extcode/cart": "^7.0",
-        "extcode/tcpdf": "^3.0"
-    },
-    "require-dev": {
-        "typo3/testing-framework": "^5.0",
-        "friendsofphp/php-cs-fixer": "^2.14",
-        "helmich/typo3-typoscript-lint": "^2.0"
+        "php": "^8.2",
+        "typo3/cms-core": "^12.4",
+        "extcode/cart": "^9.0",
+        "tecnickcom/tcpdf": "^6.7"
     },
     "replace": {
         "extcode/cart-pdf": "self.version"
     },
-    "scripts": {
-        "post-autoload-dump": [
-            "mkdir -p .build/public/typo3conf/ext/",
-            "[ -L .build/public/typo3conf/ext/cart_pdf ] || ln -snvf ../../../../. .build/public/typo3conf/ext/cart_pdf"
-        ]
+    "require-dev": {
+        "typo3/testing-framework": "^8.2",
+        "friendsofphp/php-cs-fixer": "^3.59",
+        "helmich/typo3-typoscript-lint": "^3.2"
     }
 }

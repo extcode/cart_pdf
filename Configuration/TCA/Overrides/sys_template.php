@@ -1,7 +1,8 @@
 <?php
-defined('TYPO3_MODE') or die();
 
-call_user_func(function () {
+declare(strict_types=1);
+
+call_user_func(function (): void {
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addStaticFile(
         'cart_pdf',
         'Configuration/TypoScript',
