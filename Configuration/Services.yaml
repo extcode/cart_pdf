@@ -13,3 +13,4 @@ services:
 
   Extcode\CartPdf\Service\PdfService:
     public: true
+

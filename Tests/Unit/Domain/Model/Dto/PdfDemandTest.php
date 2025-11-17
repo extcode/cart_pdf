@@ -1,5 +1,7 @@
 <?php
+
 declare(strict_types=1);
+
 namespace Extcode\CartPdf\Tests\Domain\Model\Dto;
 
 use Extcode\CartPdf\Domain\Model\Dto\PdfDemand;
@@ -7,11 +9,10 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class PdfDemandTest extends UnitTestCase
 {
-
     /**
      * @var PdfDemand
      */
-    protected $fixture = null;
+    protected $fixture;
 
     protected function setUp(): void
     {
@@ -28,7 +29,7 @@ class PdfDemandTest extends UnitTestCase
      */
     public function getDebugInitiallyReturnsZero()
     {
-        $this->assertSame(
+        self::assertSame(
             0,
             $this->fixture->getDebug()
         );
@@ -42,7 +43,7 @@ class PdfDemandTest extends UnitTestCase
         $debug = 1;
 
         $this->fixture->setDebug($debug);
-        $this->assertSame(
+        self::assertSame(
             $debug,
             $this->fixture->getDebug()
         );
@@ -53,7 +54,7 @@ class PdfDemandTest extends UnitTestCase
      */
     public function getFontSizeInitiallyReturnsDefaultFontSize()
     {
-        $this->assertSame(
+        self::assertSame(
             8,
             $this->fixture->getFontSize()
         );
@@ -67,7 +68,7 @@ class PdfDemandTest extends UnitTestCase
         $fontSize = 10;
 
         $this->fixture->setFontSize($fontSize);
-        $this->assertSame(
+        self::assertSame(
             $fontSize,
             $this->fixture->getFontSize()
         );
@@ -78,7 +79,7 @@ class PdfDemandTest extends UnitTestCase
      */
     public function getFoldMarksEnabledInitiallyReturnsTrue()
     {
-        $this->assertTrue(
+        self::assertTrue(
             $this->fixture->getFoldMarksEnabled()
         );
     }
@@ -89,12 +90,12 @@ class PdfDemandTest extends UnitTestCase
     public function setFoldMarksEnabledSetsFoldMarksEnabled()
     {
         $this->fixture->setFoldMarksEnabled(false);
-        $this->assertFalse(
+        self::assertFalse(
             $this->fixture->getFoldMarksEnabled()
         );
 
         $this->fixture->setFoldMarksEnabled(true);
-        $this->assertTrue(
+        self::assertTrue(
             $this->fixture->getFoldMarksEnabled()
         );
     }
@@ -104,7 +105,7 @@ class PdfDemandTest extends UnitTestCase
      */
     public function getAddressFieldMarksEnabledInitiallyReturnsTrue()
     {
-        $this->assertTrue(
+        self::assertTrue(
             $this->fixture->getAddressFieldMarksEnabled()
         );
     }
@@ -115,12 +116,12 @@ class PdfDemandTest extends UnitTestCase
     public function setAddressFieldMarksEnabledSetsAddressFieldMarksEnabled()
     {
         $this->fixture->setAddressFieldMarksEnabled(false);
-        $this->assertFalse(
+        self::assertFalse(
             $this->fixture->getAddressFieldMarksEnabled()
         );
 
         $this->fixture->setAddressFieldMarksEnabled(true);
-        $this->assertTrue(
+        self::assertTrue(
             $this->fixture->getAddressFieldMarksEnabled()
         );
     }

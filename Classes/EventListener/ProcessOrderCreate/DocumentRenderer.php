@@ -22,8 +22,7 @@ class DocumentRenderer
         protected PersistenceManager $persistenceManager,
         protected OrderItemRepository $orderItemRepository,
         protected PdfService $pdfService,
-    ) {
-    }
+    ) {}
 
     public function __invoke(ProcessOrderCreateEvent $event): void
     {

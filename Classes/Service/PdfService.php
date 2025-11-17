@@ -28,34 +28,16 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 class PdfService
 {
-    /**
-     * @var array
-     */
     protected array $pluginSettings = [];
 
-    /**
-     * @var array
-     */
     protected array $cartSettings = [];
 
-    /**
-     * @var array
-     */
     protected array $pdfSettings = [];
 
-    /**
-     * @var PdfDemand|null
-     */
     protected ?PdfDemand $pdfDemand = null;
 
-    /**
-     * @var TcpdfWrapper|null
-     */
     protected ?TcpdfWrapper $pdf = null;
 
-    /**
-     * @var int
-     */
     protected int $border = 1;
 
     public function __construct(
@@ -64,13 +46,8 @@ class PdfService
         protected readonly PersistenceManager $persistenceManager,
         protected readonly ResourceFactory $resourceFactory,
         protected readonly StorageRepository $storageRepository
-    ) {
-    }
+    ) {}
 
-    /**
-     * @param OrderItem $orderItem
-     * @param string $pdfType
-     */
     public function createPdf(OrderItem $orderItem, string $pdfType): void
     {
         $this->setPluginSettings($pdfType);
@@ -286,9 +263,6 @@ class PdfService
         return trim(preg_replace('~[\\n]+~', '', $footer));
     }
 
-    /**
-     * @param string $pdfType
-     */
     protected function setPluginSettings(string $pdfType): void
     {
         if (ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()) {
@@ -303,14 +277,14 @@ class PdfService
             );
         }
 
-        $this->pluginSettings =
-            $this->configurationManager->getConfiguration(
+        $this->pluginSettings
+            = $this->configurationManager->getConfiguration(
                 ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
                 'CartPdf'
             );
 
-        $this->cartSettings =
-            $this->configurationManager->getConfiguration(
+        $this->cartSettings
+            = $this->configurationManager->getConfiguration(
                 ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
                 'Cart'
             );

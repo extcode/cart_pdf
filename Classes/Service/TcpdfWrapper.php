@@ -4,40 +4,33 @@ declare(strict_types=1);
 
 namespace Extcode\CartPdf\Service;
 
+/*
+ * This file is part of the package extcode/cart-pdf.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
+
+use TCPDF;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
 
-class TcpdfWrapper extends \TCPDF
+class TcpdfWrapper extends TCPDF
 {
-    /**
-     * @var array
-     */
     protected array $pdfSettings = [];
 
-    /**
-     * @var string
-     */
     protected string $pdfType = '';
 
-    /**
-     * @return string
-     */
     public function getCartPdfType(): string
     {
         return $this->pdfType;
     }
 
-    /**
-     * @param string $pdfType
-     */
     public function setCartPdfType(string $pdfType): void
     {
         $this->pdfType = $pdfType;
     }
 
-    /**
-     * @param array $settings
-     */
     public function setSettings(array $settings): void
     {
         $this->pdfSettings = $settings;
@@ -109,14 +102,6 @@ class TcpdfWrapper extends \TCPDF
         }
     }
 
-    /**
-     * render Standalone View
-     *
-     * @param string $templatePath
-     * @param string $type
-     * @param array $config
-     * @param array $assignToView
-     */
     public function renderStandaloneView(
         string $templatePath,
         string $type,
@@ -153,12 +138,6 @@ class TcpdfWrapper extends \TCPDF
         $this->writeHtmlCellWithConfig($content, $config);
     }
 
-    /**
-     * Write HTML Cell with configuration
-     *
-     * @param string $content
-     * @param array $config
-     */
     public function writeHtmlCellWithConfig(string $content, array $config): void
     {
         $width = $config['width'];
@@ -204,17 +183,11 @@ class TcpdfWrapper extends \TCPDF
         }
     }
 
-    /**
-     * Get standalone View
-     *
-     * @param string $templatePath
-     * @param string $templateFileName
-     * @param string $format
-     *
-     * @return StandaloneView
-     */
-    public function getStandaloneView(string $templatePath, string $templateFileName = 'Default', string $format = 'html'): StandaloneView
-    {
+    public function getStandaloneView(
+        string $templatePath,
+        string $templateFileName = 'Default',
+        string $format = 'html'
+    ): StandaloneView {
         $templatePathAndFileName = $templatePath . $templateFileName . '.' . $format;
 
         /** @var StandaloneView $view */

@@ -8,7 +8,7 @@
                 ({tax.taxClass.value} %)
             </td>
             <td style="border: 1px solid #ededed; border-top: 3px solid #ededed; text-align: right;">
-                <f:format.currency>{tax.tax}</f:format.currency> {currency}
+                <f:format.currency>{tax.tax}</f:format.currency> <f:format.raw>{currency}</f:format.raw>
             </td>
         </tr>
     </f:for>
