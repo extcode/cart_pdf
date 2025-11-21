@@ -11,28 +11,28 @@ namespace Extcode\CartPdf\Domain\Model\Dto;
  * LICENSE file that was distributed with this source code.
  */
 
-use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
-
-class PdfDemand extends AbstractEntity
+class PdfDemand
 {
-    protected int $debug = 0;
+    public function __construct(
+        private readonly int $debug = 0,
+        private int $fontSize = 8,
+        private bool $foldMarksEnabled = true,
+        private bool $addressFieldMarksEnabled = true,
+    ) {}
 
-    protected int $fontSize = 8;
-
-    protected bool $foldMarksEnabled = true;
-
-    protected bool $addressFieldMarksEnabled = true;
+    public static function createFromSettings(array $settings): self
+    {
+        return new self(
+            (int)($settings['debug'] ?? 0),
+            (int)($settings['fontSize'] ?? 11),
+            (bool)($settings['enableFoldMarks'] ?? 0),
+            (bool)($settings['enableAddressFieldMarks'] ?? 0)
+        );
+    }
 
     public function getDebug(): int
     {
         return $this->debug;
-    }
-
-    public function setDebug(int $debug): void
-    {
-        if ($debug) {
-            $this->debug = $debug;
-        }
     }
 
     public function getFontSize(): int
@@ -40,30 +40,13 @@ class PdfDemand extends AbstractEntity
         return $this->fontSize;
     }
 
-    public function setFontSize(int $fontSize): void
-    {
-        if ($fontSize) {
-            $this->fontSize = $fontSize;
-        }
-    }
-
     public function getFoldMarksEnabled(): bool
     {
         return $this->foldMarksEnabled;
     }
 
-    public function setFoldMarksEnabled(bool $foldMarksEnabled): void
-    {
-        $this->foldMarksEnabled = $foldMarksEnabled;
-    }
-
     public function getAddressFieldMarksEnabled(): bool
     {
         return $this->addressFieldMarksEnabled;
-    }
-
-    public function setAddressFieldMarksEnabled(bool $addressFieldMarksEnabled): void
-    {
-        $this->addressFieldMarksEnabled = $addressFieldMarksEnabled;
     }
 }
