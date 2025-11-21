@@ -26,8 +26,7 @@ class DocumentRenderer implements LoggerAwareInterface
         protected PersistenceManager $persistenceManager,
         protected OrderItemRepository $orderItemRepository,
         protected PdfService $pdfService,
-    ) {
-    }
+    ) {}
 
     public function __invoke(EventInterface $event): void
     {

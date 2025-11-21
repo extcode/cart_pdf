@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Extcode\CartPdf\Domain\Model\Dto;
 
-use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
-
 /*
  * This file is part of the package extcode/cart-pdf.
  *
@@ -13,93 +11,42 @@ use TYPO3\CMS\Extbase\DomainObject\AbstractEntity;
  * LICENSE file that was distributed with this source code.
  */
 
-class PdfDemand extends AbstractEntity
+class PdfDemand
 {
-    /**
-     * @var int
-     */
-    protected int $debug = 0;
+    public function __construct(
+        private readonly int $debug = 0,
+        private int $fontSize = 8,
+        private bool $foldMarksEnabled = true,
+        private bool $addressFieldMarksEnabled = true,
+    ) {}
 
-    /**
-     * @var int
-     */
-    protected int $fontSize = 8;
+    public static function createFromSettings(array $settings): self
+    {
+        return new self(
+            (int)($settings['debug'] ?? 0),
+            (int)($settings['fontSize'] ?? 11),
+            (bool)($settings['enableFoldMarks'] ?? 0),
+            (bool)($settings['enableAddressFieldMarks'] ?? 0)
+        );
+    }
 
-    /**
-     * @var bool
-     */
-    protected bool $foldMarksEnabled = true;
-
-    /**
-     * @var bool
-     */
-    protected bool $addressFieldMarksEnabled = true;
-
-    /**
-     * @return int
-     */
     public function getDebug(): int
     {
         return $this->debug;
     }
 
-    /**
-     * @param int $debug
-     */
-    public function setDebug(int $debug): void
-    {
-        if ($debug) {
-            $this->debug = $debug;
-        }
-    }
-
-    /**
-     * @return int
-     */
     public function getFontSize(): int
     {
         return $this->fontSize;
     }
 
-    /**
-     * @param int $fontSize
-     */
-    public function setFontSize(int $fontSize): void
-    {
-        if ($fontSize) {
-            $this->fontSize = $fontSize;
-        }
-    }
-
-    /**
-     * @return bool
-     */
     public function getFoldMarksEnabled(): bool
     {
         return $this->foldMarksEnabled;
     }
 
-    /**
-     * @param bool $foldMarksEnabled
-     */
-    public function setFoldMarksEnabled(bool $foldMarksEnabled): void
-    {
-        $this->foldMarksEnabled = $foldMarksEnabled;
-    }
-
-    /**
-     * @return bool
-     */
     public function getAddressFieldMarksEnabled(): bool
     {
         return $this->addressFieldMarksEnabled;
-    }
-
-    /**
-     * @param bool $addressFieldMarksEnabled
-     */
-    public function setAddressFieldMarksEnabled(bool $addressFieldMarksEnabled): void
-    {
-        $this->addressFieldMarksEnabled = $addressFieldMarksEnabled;
     }
 }

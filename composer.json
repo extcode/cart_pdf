@@ -15,7 +15,7 @@
     "authors": [
         {
             "name": "Daniel Gohlke",
-            "email": "ext.cart@extco.de",
+            "email": "ext@extco.de",
             "role": "Developer"
         }
     ],
@@ -28,6 +28,8 @@
         }
     },
     "config": {
+	"bin-dir": ".build/bin",
+        "vendor-dir": ".build/vendor",
         "allow-plugins": {
             "typo3/cms-composer-installers": false,
             "typo3/class-alias-loader": false
@@ -35,21 +37,21 @@
     },
     "extra": {
         "typo3/cms": {
-            "extension-key": "cart_pdf"
-        }
+            "extension-key": "cart_pdf",
+            "web-dir": ".build/public"
+       }
     },
     "require": {
         "php": "^8.2",
+        "ext-fileinfo": "*",
         "typo3/cms-core": "^13.4",
         "extcode/cart": "^11.5",
         "tecnickcom/tcpdf": "^6.10"
     },
-    "replace": {
-        "extcode/cart-pdf": "self.version"
-    },
     "require-dev": {
         "typo3/testing-framework": "^8.2",
         "friendsofphp/php-cs-fixer": "^3.59",
-        "helmich/typo3-typoscript-lint": "^3.2"
+        "helmich/typo3-typoscript-lint": "^3.2",
+        "phpstan/phpstan": "^1.10"
     }
 }

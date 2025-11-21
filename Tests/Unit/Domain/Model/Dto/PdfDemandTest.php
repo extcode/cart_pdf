@@ -12,7 +12,7 @@ class PdfDemandTest extends UnitTestCase
     /**
      * @var PdfDemand
      */
-    protected $fixture = null;
+    protected $fixture;
 
     protected function setUp(): void
     {
@@ -29,22 +29,8 @@ class PdfDemandTest extends UnitTestCase
      */
     public function getDebugInitiallyReturnsZero(): void
     {
-        $this->assertSame(
+        self::assertSame(
             0,
-            $this->fixture->getDebug()
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function setDebugSetsDebug(): void
-    {
-        $debug = 1;
-
-        $this->fixture->setDebug($debug);
-        $this->assertSame(
-            $debug,
             $this->fixture->getDebug()
         );
     }
@@ -54,22 +40,8 @@ class PdfDemandTest extends UnitTestCase
      */
     public function getFontSizeInitiallyReturnsDefaultFontSize(): void
     {
-        $this->assertSame(
+        self::assertSame(
             8,
-            $this->fixture->getFontSize()
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function setFontSizeSetsFontSize(): void
-    {
-        $fontSize = 10;
-
-        $this->fixture->setFontSize($fontSize);
-        $this->assertSame(
-            $fontSize,
             $this->fixture->getFontSize()
         );
     }
@@ -79,23 +51,7 @@ class PdfDemandTest extends UnitTestCase
      */
     public function getFoldMarksEnabledInitiallyReturnsTrue(): void
     {
-        $this->assertTrue(
-            $this->fixture->getFoldMarksEnabled()
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function setFoldMarksEnabledSetsFoldMarksEnabled(): void
-    {
-        $this->fixture->setFoldMarksEnabled(false);
-        $this->assertFalse(
-            $this->fixture->getFoldMarksEnabled()
-        );
-
-        $this->fixture->setFoldMarksEnabled(true);
-        $this->assertTrue(
+        self::assertTrue(
             $this->fixture->getFoldMarksEnabled()
         );
     }
@@ -105,23 +61,7 @@ class PdfDemandTest extends UnitTestCase
      */
     public function getAddressFieldMarksEnabledInitiallyReturnsTrue(): void
     {
-        $this->assertTrue(
-            $this->fixture->getAddressFieldMarksEnabled()
-        );
-    }
-
-    /**
-     * @test
-     */
-    public function setAddressFieldMarksEnabledSetsAddressFieldMarksEnabled(): void
-    {
-        $this->fixture->setAddressFieldMarksEnabled(false);
-        $this->assertFalse(
-            $this->fixture->getAddressFieldMarksEnabled()
-        );
-
-        $this->fixture->setAddressFieldMarksEnabled(true);
-        $this->assertTrue(
+        self::assertTrue(
             $this->fixture->getAddressFieldMarksEnabled()
         );
     }
