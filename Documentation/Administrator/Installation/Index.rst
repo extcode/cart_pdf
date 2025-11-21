@@ -1,7 +1,10 @@
-.. include:: ../../Includes.txt
+.. include:: ../../Includes.rst.txt
 
+============
 Installation
 ============
+
+Depending on your needs you have two options to install the extension.
 
 Installation using composer
 ---------------------------
@@ -14,7 +17,8 @@ In your composer based TYPO3 project root, just do
 Installation from TYPO3 Extension Repository (TER)
 --------------------------------------------------
 
-Download and install the extension with the extension manager module.
+An installation from TER is not possible because tecnickcom/tcpdf will be installed as a dependency.
+Installing  external packages is not provided by the extension manager.
 
 Latest version from git
 -----------------------
