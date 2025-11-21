@@ -1,6 +1,6 @@
 {
   pkgs ? import <nixpkgs> { }
-  ,phpVersion ? "php81"
+  ,phpVersion ? "php82"
 }:
 
 let
