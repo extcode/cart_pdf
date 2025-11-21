@@ -4,12 +4,12 @@ services:
     autoconfigure: true
     public: false
 
-  Extcode\CartPdf\EventListener\ProcessOrderCreate\DocumentRenderer:
+  Extcode\CartPdf\EventListener\Order\Finish\DocumentRenderer:
     tags:
       - name: event.listener
-        identifier: 'cart-pdf--process-order-create--document-renderer'
-        after: 'cart--process-order-create--order-number'
-        before: 'cart--process-order-create--email'
+        identifier: 'cart-pdf--order--finish--document-renderer'
+        event: Extcode\Cart\Event\Order\FinishEvent
+        before: 'cart--order--finish--email'
 
   Extcode\CartPdf\Service\PdfService:
     public: true

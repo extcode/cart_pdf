@@ -263,8 +263,6 @@ class PdfService
         return trim(preg_replace('~[\\n]+~', '', $footer));
     }
 
-    private function setPluginSettings(string $pdfType): void {}
-
     private function createFileReferenceFromFalFileObject(File $file): FileReference
     {
         $falFileReference = $this->resourceFactory->createFileReferenceObject(

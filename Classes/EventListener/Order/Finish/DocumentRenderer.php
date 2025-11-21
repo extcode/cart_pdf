@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Extcode\CartPdf\EventListener\ProcessOrderCreate;
+namespace Extcode\CartPdf\EventListener\Order\Finish;
 
 /*
  * This file is part of the package extcode/cart-pdf.
@@ -12,7 +12,7 @@ namespace Extcode\CartPdf\EventListener\ProcessOrderCreate;
  */
 
 use Extcode\Cart\Domain\Repository\Order\ItemRepository as OrderItemRepository;
-use Extcode\Cart\Event\ProcessOrderCreateEvent;
+use Extcode\Cart\Event\Order\FinishEvent;
 use Extcode\CartPdf\Service\PdfService;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
@@ -24,7 +24,7 @@ class DocumentRenderer
         protected PdfService $pdfService,
     ) {}
 
-    public function __invoke(ProcessOrderCreateEvent $event): void
+    public function __invoke(FinishEvent $event): void
     {
         $orderItem = $event->getOrderItem();
         $settings = $event->getSettings();
