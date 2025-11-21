@@ -1,5 +1,6 @@
-.. include:: ../../../Includes.txt
+.. include:: ../../../Includes.rst.txt
 
+==================
 Main Configuration
 ==================
 
@@ -9,7 +10,7 @@ Preparation: Include static TypoScript
 The extension comes with several TypoScript configuration files. One for general configuration an one for each type of PDF.
 
 Preparation: Folder for PDF files
-------------------------------------
+---------------------------------
 
 Furthermore, the folders must be created in which the PDF files are to be stored. The standard
 TypoScript configuration sees folder *tx_cart/order_pdf*, *tx_cart/invoice_pdf* and *tx_cart/delivery_pdf*
