@@ -15,7 +15,6 @@ use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
 use Extcode\Cart\Domain\Repository\Order\ItemRepository as OrderItemRepository;
 use Extcode\CartPdf\Domain\Model\Dto\PdfDemand;
 use TYPO3\CMS\Core\Http\ApplicationType;
-use TYPO3\CMS\Core\Resource\DuplicationBehavior;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Resource\StorageRepository;
@@ -28,55 +27,62 @@ use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
 class PdfService
 {
-    protected array $pluginSettings = [];
+    private array $pluginSettings;
 
-    protected array $cartSettings = [];
+    private array $pdfSettings = [];
 
-    protected array $pdfSettings = [];
+    private ?PdfDemand $pdfDemand = null;
 
-    protected ?PdfDemand $pdfDemand = null;
-
-    protected ?TcpdfWrapper $pdf = null;
-
-    protected int $border = 1;
+    private ?TcpdfWrapper $pdf = null;
 
     public function __construct(
-        protected readonly ConfigurationManager $configurationManager,
-        protected readonly OrderItemRepository $orderItemRepository,
-        protected readonly PersistenceManager $persistenceManager,
-        protected readonly ResourceFactory $resourceFactory,
-        protected readonly StorageRepository $storageRepository
-    ) {}
+        private readonly ConfigurationManager $configurationManager,
+        private readonly OrderItemRepository $orderItemRepository,
+        private readonly PersistenceManager $persistenceManager,
+        private readonly ResourceFactory $resourceFactory,
+        private readonly StorageRepository $storageRepository,
+    ) {
+        if (ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()) {
+            $pageId = (int)($GLOBALS['TYPO3_REQUEST']->getQueryParams()['id'] ?? 1);
+
+            $frameworkConfiguration = $this->configurationManager->getConfiguration(
+                ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK
+            );
+            $persistenceConfiguration = ['persistence' => ['storagePid' => $pageId]];
+            $this->configurationManager->setConfiguration(
+                array_merge($frameworkConfiguration, $persistenceConfiguration)
+            );
+        }
+
+        $this->pluginSettings = $this->configurationManager->getConfiguration(
+            ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
+            'CartPdf'
+        );
+    }
 
     public function createPdf(OrderItem $orderItem, string $pdfType): void
     {
-        $this->setPluginSettings($pdfType);
+        $this->pdfSettings = $this->pluginSettings[$pdfType . 'Pdf'];
+        $this->pdfDemand = PdfDemand::createFromSettings($this->pdfSettings);
 
-        $pdfFilename = '/tmp/tempfile.pdf';
+        $storage = $this->storageRepository->findByUid((int)$this->pdfSettings['storageRepository']);
+        if ($storage) {
+            $targetFolder = $storage->getFolder((string)$this->pdfSettings['storageFolder']);
+            if ($targetFolder) {
+                $getNumber = 'get' . ucfirst($pdfType) . 'Number';
+                $number = $orderItem->{$getNumber}();
+                $newFileName = $number . '.pdf';
+                $tempFilename = uniqid('PdfServiceTempFile_') . $number . '.pdf';
 
-        $this->renderPdf($orderItem, $pdfType);
+                $pdf = $this->renderPdf($orderItem, $pdfType);
+                $file = $targetFolder->createFile($tempFilename);
+                $file->setContents($pdf);
+                $file->rename($newFileName);
 
-        $getNumber = 'get' . ucfirst($pdfType) . 'Number';
-        $newFileName = $orderItem->{$getNumber}() . '.pdf';
+                $falFileReference = $this->createFileReferenceFromFalFileObject($file);
 
-        if (file_exists($pdfFilename)) {
-            $storage = $this->storageRepository->findByUid((int)$this->pdfSettings['storageRepository']);
-
-            if ($storage) {
-                $targetFolder = $storage->getFolder((string)$this->pdfSettings['storageFolder']);
-
-                if ($targetFolder) {
-                    $falFile = $targetFolder->addFile(
-                        $pdfFilename,
-                        $newFileName,
-                        DuplicationBehavior::RENAME
-                    );
-
-                    $falFileReference = $this->createFileReferenceFromFalFileObject($falFile);
-
-                    $addPdfFunction = 'add' . ucfirst($pdfType) . 'Pdf';
-                    $orderItem->{$addPdfFunction}($falFileReference);
-                }
+                $addPdfFunction = 'add' . ucfirst($pdfType) . 'Pdf';
+                $orderItem->{$addPdfFunction}($falFileReference);
             }
         }
 
@@ -84,16 +90,12 @@ class PdfService
         $this->persistenceManager->persistAll();
     }
 
-    protected function renderPdf(OrderItem $orderItem, string $pdfType): void
+    private function renderPdf(OrderItem $orderItem, string $pdfType): string
     {
-        $pluginSettings = $this->configurationManager->getConfiguration(
-            ConfigurationManager::CONFIGURATION_TYPE_FRAMEWORK,
-            'cartpdf'
+        $this->pdf = TcpdfWrapper::createWithTypeAndSettings(
+            $pdfType . 'Pdf',
+            $this->pluginSettings,
         );
-
-        $this->pdf = GeneralUtility::makeInstance(TcpdfWrapper::class);
-        $this->pdf->setSettings($pluginSettings);
-        $this->pdf->setCartPdfType($pdfType . 'Pdf');
 
         if (empty($this->pdfSettings['header'])) {
             $this->pdf->setPrintHeader(false);
@@ -174,12 +176,10 @@ class PdfService
             }
         }
 
-        $pdfFilename = '/tmp/tempfile.pdf';
-
-        $this->pdf->Output($pdfFilename, 'F');
+        return $this->pdf->Output(dest: 'S');
     }
 
-    protected function renderMarker(): void
+    private function renderMarker(): void
     {
         if ($this->pdfDemand->getFoldMarksEnabled()) {
             $this->pdf->SetLineWidth(0.1);
@@ -207,7 +207,7 @@ class PdfService
         }
     }
 
-    protected function renderCart(OrderItem $orderItem, string $pdfType): void
+    private function renderCart(OrderItem $orderItem, string $pdfType): void
     {
         $pdfType .= 'Pdf';
 
@@ -227,7 +227,7 @@ class PdfService
         $this->pdf->writeHtmlCellWithConfig($content, $config);
     }
 
-    protected function renderCartHeader(OrderItem $orderItem, string $pdfType): string
+    private function renderCartHeader(OrderItem $orderItem, string $pdfType): string
     {
         $view = $this->pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Header');
         $view->assign('orderItem', $orderItem);
@@ -236,7 +236,7 @@ class PdfService
         return trim(preg_replace('~[\\n]+~', '', $header));
     }
 
-    protected function renderCartBody(OrderItem $orderItem, string $pdfType): string
+    private function renderCartBody(OrderItem $orderItem, string $pdfType): string
     {
         $view = $this->pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Product');
         $view->assign('orderItem', $orderItem);
@@ -253,7 +253,7 @@ class PdfService
         return $bodyOut;
     }
 
-    protected function renderCartFooter(OrderItem $orderItem, string $pdfType): string
+    private function renderCartFooter(OrderItem $orderItem, string $pdfType): string
     {
         $view = $this->pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Footer');
         $view->assign('orderSettings', $this->pdfSettings['body']['order']);
@@ -263,60 +263,16 @@ class PdfService
         return trim(preg_replace('~[\\n]+~', '', $footer));
     }
 
-    protected function setPluginSettings(string $pdfType): void
-    {
-        if (ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()) {
-            $pageId = (int)($GLOBALS['TYPO3_REQUEST']->getQueryParams()['id'] ?? 1);
+    private function setPluginSettings(string $pdfType): void {}
 
-            $frameworkConfiguration = $this->configurationManager->getConfiguration(
-                ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK
-            );
-            $persistenceConfiguration = ['persistence' => ['storagePid' => $pageId]];
-            $this->configurationManager->setConfiguration(
-                array_merge($frameworkConfiguration, $persistenceConfiguration)
-            );
-        }
-
-        $this->pluginSettings
-            = $this->configurationManager->getConfiguration(
-                ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
-                'CartPdf'
-            );
-
-        $this->cartSettings
-            = $this->configurationManager->getConfiguration(
-                ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
-                'Cart'
-            );
-
-        $this->pdfSettings = $this->pluginSettings[$pdfType . 'Pdf'];
-        $this->pdfDemand = GeneralUtility::makeInstance(PdfDemand::class);
-
-        $this->pdfDemand->setFontSize(
-            (int)($this->pdfSettings['fontSize'] ?? 11)
-        );
-
-        $this->pdfDemand->setDebug(
-            (int)($this->pdfSettings['debug'] ?? 0)
-        );
-
-        $this->pdfDemand->setFoldMarksEnabled(
-            (bool)($this->pdfSettings['enableFoldMarks'] ?? 0)
-        );
-
-        $this->pdfDemand->setAddressFieldMarksEnabled(
-            (bool)($this->pdfSettings['enableAddressFieldMarks'] ?? 0)
-        );
-    }
-
-    protected function createFileReferenceFromFalFileObject(File $file): FileReference
+    private function createFileReferenceFromFalFileObject(File $file): FileReference
     {
         $falFileReference = $this->resourceFactory->createFileReferenceObject(
             [
-                'uid_local'   => $file->getUid(),
+                'uid_local' => $file->getUid(),
                 'uid_foreign' => StringUtility::getUniqueId('NEW_'),
-                'uid'         => StringUtility::getUniqueId('NEW_'),
-                'crop'        => null,
+                'uid' => StringUtility::getUniqueId('NEW_'),
+                'crop' => null,
             ]
         );
 

@@ -17,87 +17,96 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class TcpdfWrapper extends TCPDF
 {
-    protected array $pdfSettings = [];
+    private readonly array $pdfSettings;
+    private readonly array $viewSettings;
 
-    protected string $pdfType = '';
+    public function __construct(
+        private readonly string $pdfType,
+        array $settings,
+    ) {
+        $this->pdfSettings = $settings[$this->pdfType];
+        $this->viewSettings = $settings['view'];
+
+        parent::__construct();
+    }
+
+    public static function createWithTypeAndSettings(
+        string $pdfType,
+        array $pdfSettings,
+    ): self {
+        return new self(
+            $pdfType,
+            $pdfSettings,
+        );
+    }
 
     public function getCartPdfType(): string
     {
         return $this->pdfType;
     }
 
-    public function setCartPdfType(string $pdfType): void
-    {
-        $this->pdfType = $pdfType;
-    }
-
-    public function setSettings(array $settings): void
-    {
-        $this->pdfSettings = $settings;
-    }
-
     public function header(): void
     {
-        if (!empty($this->pdfSettings[$this->pdfType])) {
-            if (!empty($this->pdfSettings[$this->pdfType]['header'])) {
-                if (!empty($this->pdfSettings[$this->pdfType]['fontSize'])) {
-                    $this->SetFontSize($this->pdfSettings[$this->pdfType]['fontSize']);
-                }
+        if (empty($this->pdfSettings['header'] ?? [])) {
+            return;
+        }
 
-                if (!empty($this->pdfSettings[$this->pdfType]['header']['html'])) {
-                    foreach ($this->pdfSettings[$this->pdfType]['header']['html'] as $partName => $partConfig) {
-                        $this->renderStandaloneView(
-                            $this->pdfSettings[$this->pdfType]['header']['html'][$partName]['templatePath'],
-                            $partName,
-                            $partConfig
-                        );
-                    }
-                }
+        if (!empty($this->pdfSettings['fontSize'])) {
+            $this->SetFontSize($this->pdfSettings['fontSize']);
+        }
 
-                if (!empty($this->pdfSettings[$this->pdfType]['header']['line'])) {
-                    foreach ($this->pdfSettings[$this->pdfType]['header']['line'] as $partName => $partConfig) {
-                        $this->Line(
-                            $partConfig['x1'],
-                            $partConfig['y1'],
-                            $partConfig['x2'],
-                            $partConfig['y2'],
-                            $partConfig['style']
-                        );
-                    }
-                }
+        if (!empty($this->pdfSettings['header']['html'])) {
+            foreach ($this->pdfSettings['header']['html'] as $partName => $partConfig) {
+                $this->renderStandaloneView(
+                    $this->pdfSettings['header']['html'][$partName]['templatePath'],
+                    $partName,
+                    $partConfig
+                );
+            }
+        }
+
+        if (!empty($this->pdfSettings['header']['line'])) {
+            foreach ($this->pdfSettings['header']['line'] as $partConfig) {
+                $this->Line(
+                    $partConfig['x1'],
+                    $partConfig['y1'],
+                    $partConfig['x2'],
+                    $partConfig['y2'],
+                    $partConfig['style']
+                );
             }
         }
     }
 
     public function footer(): void
     {
-        if (!empty($this->pdfSettings[$this->pdfType])) {
-            if (!empty($this->pdfSettings[$this->pdfType]['footer'])) {
-                if (!empty($this->pdfSettings[$this->pdfType]['fontSize'])) {
-                    $this->SetFontSize($this->pdfSettings[$this->pdfType]['fontSize']);
-                }
+        if (empty($this->pdfSettings['footer'] ?? [])) {
+            return;
+        }
 
-                if (!empty($this->pdfSettings[$this->pdfType]['footer']['html'])) {
-                    foreach ($this->pdfSettings[$this->pdfType]['footer']['html'] as $partName => $partConfig) {
-                        $this->renderStandaloneView(
-                            $this->pdfSettings[$this->pdfType]['footer']['html'][$partName]['templatePath'],
-                            $partName,
-                            $partConfig
-                        );
-                    }
-                }
+        if (!empty($this->pdfSettings['fontSize'])) {
+            $this->SetFontSize($this->pdfSettings['fontSize']);
+        }
 
-                if (!empty($this->pdfSettings[$this->pdfType]['footer']['line'])) {
-                    foreach ($this->pdfSettings[$this->pdfType]['footer']['line'] as $partName => $partConfig) {
-                        $this->Line(
-                            $partConfig['x1'],
-                            $partConfig['y1'],
-                            $partConfig['x2'],
-                            $partConfig['y2'],
-                            $partConfig['style']
-                        );
-                    }
-                }
+        if (!empty($this->pdfSettings['footer']['html'])) {
+            foreach ($this->pdfSettings['footer']['html'] as $partName => $partConfig) {
+                $this->renderStandaloneView(
+                    $this->pdfSettings['footer']['html'][$partName]['templatePath'],
+                    $partName,
+                    $partConfig
+                );
+            }
+        }
+
+        if (!empty($this->pdfSettings['footer']['line'])) {
+            foreach ($this->pdfSettings['footer']['line'] as $partConfig) {
+                $this->Line(
+                    $partConfig['x1'],
+                    $partConfig['y1'],
+                    $partConfig['x2'],
+                    $partConfig['y2'],
+                    $partConfig['style']
+                );
             }
         }
     }
@@ -194,12 +203,12 @@ class TcpdfWrapper extends TCPDF
         $view = GeneralUtility::makeInstance(StandaloneView::class);
         $view->setFormat($format);
 
-        if (!empty($this->pdfSettings['view'])) {
-            $view->setLayoutRootPaths($this->pdfSettings['view']['layoutRootPaths']);
-            $view->setPartialRootPaths($this->pdfSettings['view']['partialRootPaths']);
+        if (!empty($this->viewSettings)) {
+            $view->setLayoutRootPaths($this->viewSettings['layoutRootPaths']);
+            $view->setPartialRootPaths($this->viewSettings['partialRootPaths']);
 
-            if ($this->pdfSettings['view']['templateRootPaths']) {
-                foreach ($this->pdfSettings['view']['templateRootPaths'] as $pathNameKey => $pathNameValue) {
+            if ($this->viewSettings['templateRootPaths']) {
+                foreach ($this->viewSettings['templateRootPaths'] as $pathNameKey => $pathNameValue) {
                     $templateRootPath = GeneralUtility::getFileAbsFileName(
                         $pathNameValue
                     );
