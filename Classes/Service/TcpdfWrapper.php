@@ -150,19 +150,19 @@ class TcpdfWrapper extends TCPDF
     public function writeHtmlCellWithConfig(string $content, array $config): void
     {
         $width = (float)($config['width'] ?? 0.0);
-	$height = (float)($config['height'] ?? 0.0);
+        $height = (float)($config['height'] ?? 0.0);
 
-	$positionX = null;
+        $positionX = null;
         if (isset($config['positionX']) && is_numeric($config['positionX'])) {
             $positionX = (float)$config['positionX'];
         }
-	$positionY = null;
+        $positionY = null;
         if (isset($config['positionY']) && is_numeric($config['positionY'])) {
             $positionY = (float)$config['positionY'];
         }
 	
-	$align = 'L';
-        if (isset($config['align']) && in_array($config['align'], ['L', 'C', 'R', '']) {
+        $align = 'L';
+        if (isset($config['align']) && in_array($config['align'], ['L', 'C', 'R', ''])) {
             $align = $config['align'];
         }
 
