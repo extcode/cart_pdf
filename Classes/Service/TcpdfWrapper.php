@@ -149,28 +149,31 @@ class TcpdfWrapper extends TCPDF
 
     public function writeHtmlCellWithConfig(string $content, array $config): void
     {
-        $width = $config['width'];
-        $height = 0;
+        $width = (float)($config['width'] ?? 0.0);
+	$height = (float)($config['height'] ?? 0.0);
 
-        if (!empty($config['height'])) {
-            $height = $config['height'];
+	$positionX = null;
+        if (isset($config['positionX']) && is_numeric($config['positionX'])) {
+            $positionX = (float)$config['positionX'];
         }
-        $positionX = $config['positionX'];
-        $positionY = $config['positionY'];
-        $align = 'L';
-
-        if (!empty($config['align'])) {
+	$positionY = null;
+        if (isset($config['positionY']) && is_numeric($config['positionY'])) {
+            $positionY = (float)$config['positionY'];
+        }
+	
+	$align = 'L';
+        if (isset($config['align']) && in_array($config['align'], ['L', 'C', 'R', '']) {
             $align = $config['align'];
         }
 
-        $oldFontSize = $this->getFontSizePt();
-
-        if (!empty($config['fontSize'])) {
-            $this->SetFontSize($config['fontSize']);
+        $oldFontSize = null;
+        if (empty($config['fontSize']) && is_numeric($config['fontSize'])) {
+            $oldFontSize = $this->getFontSizePt();
+            $this->SetFontSize((float)$config['fontSize']);
         }
 
-        if (!empty($config['spacingY'])) {
-            $this->setY($this->getY() + $config['spacingY']);
+        if (isset($config['spacingY']) && is_numeric($config['spacingY'])) {
+            $this->setY($this->getY() + (float)$config['spacingY']);
         }
 
         $this->writeHTMLCell(
@@ -187,7 +190,7 @@ class TcpdfWrapper extends TCPDF
             true
         );
 
-        if (!empty($config['fontSize'])) {
+        if (is_null($oldFontSize) === false) {
             $this->SetFontSize($oldFontSize);
         }
     }
