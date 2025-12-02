@@ -13,15 +13,17 @@ namespace Extcode\CartPdf\EventListener\Order\Finish;
 
 use Extcode\Cart\Domain\Repository\Order\ItemRepository as OrderItemRepository;
 use Extcode\Cart\Event\Order\FinishEvent;
-use Extcode\CartPdf\Service\PdfService;
+use Extcode\CartPdf\Service\DocumentRenderServiceInterface;
+use Extcode\CartPdf\Service\FileWriterServiceInterface;
 use TYPO3\CMS\Extbase\Persistence\Generic\PersistenceManager;
 
-class DocumentRenderer
+final readonly class DocumentRenderer
 {
     public function __construct(
-        protected PersistenceManager $persistenceManager,
-        protected OrderItemRepository $orderItemRepository,
-        protected PdfService $pdfService,
+        private PersistenceManager $persistenceManager,
+        private OrderItemRepository $orderItemRepository,
+        private DocumentRenderServiceInterface $documentRenderService,
+        private FileWriterServiceInterface $fileWriterService,
     ) {}
 
     public function __invoke(FinishEvent $event): void
@@ -37,7 +39,14 @@ class DocumentRenderer
 
         foreach ($generateDocuments as $documentType => $documentData) {
             if ($documentData) {
-                $this->pdfService->createPdf($orderItem, $documentType);
+                $this->fileWriterService->writeContentToFile(
+                    $orderItem,
+                    $documentType,
+                    $this->documentRenderService->renderDocument(
+                        $orderItem,
+                        $documentType
+                    )
+                );
             }
         }
 
