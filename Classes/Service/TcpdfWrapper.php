@@ -160,7 +160,7 @@ class TcpdfWrapper extends TCPDF
         if (isset($config['positionY']) && is_numeric($config['positionY'])) {
             $positionY = (float)$config['positionY'];
         }
-	
+
         $align = 'L';
         if (isset($config['align']) && in_array($config['align'], ['L', 'C', 'R', ''])) {
             $align = $config['align'];

@@ -11,6 +11,18 @@ services:
         event: Extcode\Cart\Event\Order\FinishEvent
         before: 'cart--order--finish--email'
 
+  Extcode\CartPdf\Service\DocumentRenderServiceInterface:
+    alias: Extcode\CartPdf\Service\PdfService
+
+  Extcode\CartPdf\Service\FileWriterServiceInterface:
+    alias: Extcode\CartPdf\Service\FileWriterService
+
+  Extcode\CartPdf\Service\FileServiceInterface:
+    alias: Extcode\CartPdf\Service\FileService
+
   Extcode\CartPdf\Service\PdfService:
+    public: true
+
+  Extcode\CartPdf\Service\FileWriterService:
     public: true
 
