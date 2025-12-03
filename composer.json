@@ -49,7 +49,7 @@
         "tecnickcom/tcpdf": "^6.7"
     },
     "require-dev": {
-        "typo3/testing-framework": "^8.2",
+        "typo3/testing-framework": "^9.3",
         "friendsofphp/php-cs-fixer": "^3.59",
         "helmich/typo3-typoscript-lint": "^3.2",
         "phpstan/phpstan": "^1.10"
