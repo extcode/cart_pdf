@@ -12,8 +12,11 @@ namespace Extcode\CartPdf\Service;
  */
 
 use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
+use TYPO3\CMS\Core\Resource\Folder;
 
-interface DocumentRenderServiceInterface
+interface FileServiceInterface
 {
-    public function renderDocument(OrderItem $orderItem, string $pdfType): string;
+    public function getFolder(array $configuration, OrderItem $orderItem, string $pdfType): ?Folder;
+
+    public function getFilename(array $configuration, OrderItem $orderItem, string $pdfType): string;
 }

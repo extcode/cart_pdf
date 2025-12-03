@@ -18,16 +18,21 @@ Affected Installations
 ======================
 
 All installations which overwrite
-`\Extcode\CartPdf\Service\PdfService::createPdf` are affected.
-This Method was removed. THe `\Extcode\CartPdf\Service\PdfService::renderPdf`
-is now public and return the pdf content as string which is
-handed over to the new `\Extcode\CartPdf\Service\FileWriterService::writeContentToFile`.
+`\Extcode\CartPdf\Service\PdfService::createPdf` and 
+`\Extcode\CartPdf\Service\PdfService::renderPdf`
+are affected.
+These methods were removed. The functionality was
+moved to `\Extcode\CartPdf\Service\PdfService::renderDocument`
+and return the pdf content as string. Saving the file was
+handed over to the new
+`\Extcode\CartPdf\Service\FileWriterService::writeContentToFile`.
 
 Migration
 =========
 
-Move the own logic in the `\Extcode\CartPdf\Service\PdfService::createPdf`
-to an own `FileWriterService` and inject this own service to the
-`\Extcode\CartPdf\Service\PdfService`.FileWriterService
+Move the logic to an own implementation of the
+`\Extcode\CartPdf\Service\FileWriterServiceInterface` and
+inject this own service to the
+`\Extcode\CartPdf\EventListener\Order\Finish\DocumentRenderer`.
 
 .. index:: API

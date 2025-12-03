@@ -15,10 +15,7 @@ use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
 use Extcode\Cart\Domain\Repository\Order\ItemRepository as OrderItemRepository;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Resource\File;
-use TYPO3\CMS\Core\Resource\Folder;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
-use TYPO3\CMS\Core\Resource\ResourceStorage;
-use TYPO3\CMS\Core\Resource\StorageRepository;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\StringUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
@@ -35,7 +32,7 @@ readonly class FileWriterService implements FileWriterServiceInterface
         private OrderItemRepository $orderItemRepository,
         private PersistenceManager $persistenceManager,
         private ResourceFactory $resourceFactory,
-        private StorageRepository $storageRepository,
+        private FileServiceInterface $fileService,
     ) {
         if (ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()) {
             $pageId = (int)($GLOBALS['TYPO3_REQUEST']->getQueryParams()['id'] ?? 1);
@@ -57,27 +54,18 @@ readonly class FileWriterService implements FileWriterServiceInterface
 
     public function writeContentToFile(OrderItem $orderItem, string $pdfType, string $fileContent): void
     {
-        $pdfSettings = $this->configuration[$pdfType . 'Pdf'];
-
-        $storage = $this->storageRepository->findByUid((int)$pdfSettings['storageRepository']);
-        if (($storage instanceof ResourceStorage) === false) {
+        $targetFolder = $this->fileService->getFolder($this->configuration[$pdfType . 'Pdf'], $orderItem, $pdfType);
+        if (is_null($targetFolder)) {
             return;
         }
-
-        $targetFolder = $storage->getFolder((string)$pdfSettings['storageFolder']);
-        if (($targetFolder instanceof Folder) === false) {
-            return;
-        }
-
-        $getNumber = 'get' . ucfirst($pdfType) . 'Number';
-        $number = $orderItem->{$getNumber}();
-        $newFileName = $this->generateFileName((string)$number);
 
         $file = $targetFolder->createFile(
-            uniqid('PdfServiceTempFile_') . $number . '.pdf'
+            uniqid('PdfServiceTempFile_') . '.pdf'
         );
         $file->setContents($fileContent);
-        $file->rename($newFileName);
+        $file->rename(
+            $this->fileService->getFilename($this->configuration[$pdfType . 'Pdf'], $orderItem, $pdfType)
+        );
 
         $addPdfFunction = 'add' . ucfirst($pdfType) . 'Pdf';
         $orderItem->{$addPdfFunction}(
@@ -106,10 +94,5 @@ readonly class FileWriterService implements FileWriterServiceInterface
         $fileReference->setOriginalResource($falFileReference);
 
         return $fileReference;
-    }
-
-    protected function generateFileName(string $number): string
-    {
-        return $number . '.pdf';
     }
 }
