@@ -71,7 +71,7 @@ let
     ];
 
     text = ''
-      ./.build/bin/phpstan analyse -c Build/phpstan.neon --memory-limit 256M
+      ./.build/bin/phpstan analyse -c Build/phpstan.neon -a .build/vendor/tecnickcom/tcpdf/tcpdf_autoconfig.php
     '';
   };
 
