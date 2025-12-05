@@ -26,3 +26,6 @@ services:
   Extcode\CartPdf\Service\FileWriterService:
     public: true
 
+  Extcode\CartPdf\Service\FileService:
+    public: true
+
