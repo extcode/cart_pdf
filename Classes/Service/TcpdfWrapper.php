@@ -130,7 +130,7 @@ class TcpdfWrapper extends TCPDF
             }
 
             if (!empty($config['height'])) {
-                $view->assign('heigth', $config['heigth']);
+                $view->assign('height', $config['height']);
             }
         }
 
