@@ -167,7 +167,7 @@ class TcpdfWrapper extends TCPDF
         }
 
         $oldFontSize = null;
-        if (empty($config['fontSize']) && is_numeric($config['fontSize'])) {
+        if (isset($config['fontSize']) && is_numeric($config['fontSize'])) {
             $oldFontSize = $this->getFontSizePt();
             $this->SetFontSize((float)$config['fontSize']);
         }
