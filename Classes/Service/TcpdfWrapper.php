@@ -160,14 +160,14 @@ class TcpdfWrapper extends TCPDF
         if (isset($config['positionY']) && is_numeric($config['positionY'])) {
             $positionY = (float)$config['positionY'];
         }
-	
+
         $align = 'L';
         if (isset($config['align']) && in_array($config['align'], ['L', 'C', 'R', ''])) {
             $align = $config['align'];
         }
 
         $oldFontSize = null;
-        if (empty($config['fontSize']) && is_numeric($config['fontSize'])) {
+        if (isset($config['fontSize']) && is_numeric($config['fontSize'])) {
             $oldFontSize = $this->getFontSizePt();
             $this->SetFontSize((float)$config['fontSize']);
         }
