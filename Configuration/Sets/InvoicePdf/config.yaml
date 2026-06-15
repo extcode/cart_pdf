@@ -1,0 +1,4 @@
+name: extcode/cart-pdf-invoice-pdf
+label: Shopping Cart - Cart Pdf - Invoice PDF
+dependencies:
+    - extcode/cart-pdf

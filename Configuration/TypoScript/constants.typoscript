@@ -1,16 +1,1 @@
-plugin.tx_cartpdf {
-    view {
-        templateRootPath = EXT:cart_pdf/Resources/Private/Templates/
-        partialRootPath = EXT:cart_pdf/Resources/Private/Partials/
-        layoutRootPath = EXT:cart_pdf/Resources/Private/Layouts/
-    }
-}
-
-module.tx_cartpdf {
-    view {
-        templateRootPath = EXT:cart_pdf/Resources/Private/Templates/
-        partialRootPath = EXT:cart_pdf/Resources/Private/Partials/
-        layoutRootPath = EXT:cart_pdf/Resources/Private/Layouts/
-    }
-}
-
+@import 'EXT:cart_pdf/Configuration/Sets/CartPdf/constants.typoscript'

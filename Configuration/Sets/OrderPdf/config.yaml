@@ -1,0 +1,4 @@
+name: extcode/cart-pdf-order-pdf
+label: Shopping Cart - Cart Pdf - Order PDF
+dependencies:
+    - extcode/cart-pdf

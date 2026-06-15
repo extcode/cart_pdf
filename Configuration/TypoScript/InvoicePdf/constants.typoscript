@@ -1,6 +1,1 @@
-plugin.tx_cartpdf {
-    invoicePdf {
-        storageRepository = 1
-        storageFolder = tx_cart/invoice_pdf
-    }
-}
+@import 'EXT:cart_pdf/Configuration/Sets/InvoicePdf/constants.typoscript'
