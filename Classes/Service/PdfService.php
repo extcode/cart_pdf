@@ -15,9 +15,11 @@ use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
 use Extcode\CartPdf\Domain\Model\Dto\PdfDemand;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\View\ViewFactoryData;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
+use TYPO3\CMS\Core\View\ViewInterface;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
-use TYPO3\CMS\Fluid\View\StandaloneView;
 
 readonly class PdfService implements DocumentRenderServiceInterface
 {
@@ -26,6 +28,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
 
     public function __construct(
         private readonly ConfigurationManager $configurationManager,
+        private ViewFactoryInterface $viewFactory,
     ) {
         if (ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()) {
             $pageId = (int)($GLOBALS['TYPO3_REQUEST']->getQueryParams()['id'] ?? 1);
@@ -48,37 +51,16 @@ readonly class PdfService implements DocumentRenderServiceInterface
         $this->viewSettings = is_array($viewSettings) ? $viewSettings : [];
     }
 
-    public function getStandaloneView(
-        string $templatePath,
-        string $templateFileName = 'Default',
-        string $format = 'html',
-    ): StandaloneView {
-        $templatePathAndFileName = $templatePath . $templateFileName . '.' . $format;
-
-        /** @var StandaloneView $view */
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setFormat($format);
-
-        if (!empty($this->viewSettings)) {
-            $view->setLayoutRootPaths($this->viewSettings['layoutRootPaths']);
-            $view->setPartialRootPaths($this->viewSettings['partialRootPaths']);
-
-            if ($this->viewSettings['templateRootPaths']) {
-                foreach ($this->viewSettings['templateRootPaths'] as $pathNameKey => $pathNameValue) {
-                    $templateRootPath = GeneralUtility::getFileAbsFileName(
-                        $pathNameValue
-                    );
-
-                    $completePath = $templateRootPath . $templatePathAndFileName;
-
-                    if (file_exists($completePath)) {
-                        $view->setTemplatePathAndFilename($completePath);
-                    }
-                }
-            }
-        }
-
-        return $view;
+    public function getStandaloneView(string $format = 'html'): ViewInterface
+    {
+        return $this->viewFactory->create(new ViewFactoryData(
+            $this->viewSettings['templateRootPaths'] ?? [],
+            $this->viewSettings['partialRootPaths'] ?? [],
+            $this->viewSettings['layoutRootPaths'] ?? [],
+            null,
+            $GLOBALS['TYPO3_REQUEST'] ?? null,
+            $format,
+        ));
     }
 
     public function renderStandaloneView(
@@ -87,7 +69,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
         array $config,
         array $assignToView = [],
     ): string {
-        $view = $this->getStandaloneView($templatePath, ucfirst($type));
+        $view = $this->getStandaloneView();
 
         if (!empty($config['file'])) {
             $file = GeneralUtility::getFileAbsFileName($config['file']);
@@ -106,7 +88,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
 
         $view->assignMultiple($assignToView);
 
-        $content = (string)$view->render();
+        $content = (string)$view->render($templatePath . ucfirst($type));
         return trim(preg_replace('~[\\n]+~', '', $content));
     }
 
@@ -289,23 +271,23 @@ readonly class PdfService implements DocumentRenderServiceInterface
 
     private function renderCartHeader(OrderItem $orderItem, string $pdfType): string
     {
-        $view = $this->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Header');
+        $view = $this->getStandaloneView();
         $view->assign('orderItem', $orderItem);
-        $header = $view->render();
+        $header = $view->render('/' . ucfirst($pdfType) . '/Order/Header');
 
         return trim(preg_replace('~[\\n]+~', '', $header));
     }
 
     private function renderCartBody(OrderItem $orderItem, string $pdfType): string
     {
-        $view = $this->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Product');
+        $view = $this->getStandaloneView();
         $view->assign('orderItem', $orderItem);
 
         $bodyOut = '';
 
         foreach ($orderItem->getProducts() as $product) {
             $view->assign('product', $product);
-            $product = $view->render();
+            $product = $view->render('/' . ucfirst($pdfType) . '/Order/Product');
 
             $bodyOut .= trim(preg_replace('~[\\n]+~', '', $product));
         }
@@ -315,10 +297,10 @@ readonly class PdfService implements DocumentRenderServiceInterface
 
     private function renderCartFooter(OrderItem $orderItem, string $pdfType): string
     {
-        $view = $this->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Footer');
+        $view = $this->getStandaloneView();
         $view->assign('orderSettings', $this->configuration[$pdfType]['body']['order']);
         $view->assign('orderItem', $orderItem);
-        $footer = $view->render();
+        $footer = $view->render('/' . ucfirst($pdfType) . '/Order/Footer');
 
         return trim(preg_replace('~[\\n]+~', '', $footer));
     }
