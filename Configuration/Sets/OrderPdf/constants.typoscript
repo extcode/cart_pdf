@@ -1,0 +1,6 @@
+plugin.tx_cartpdf {
+    orderPdf {
+        storageRepository = 1
+        storageFolder = tx_cart/order_pdf
+    }
+}
