@@ -53,14 +53,14 @@ class TcpdfWrapper extends TCPDF
         return $this->pdfType;
     }
 
-    public function header(): void
+    public function Header(): void
     {
         if (empty($this->pdfSettings['header'] ?? [])) {
             return;
         }
 
         if (!empty($this->pdfSettings['fontSize'])) {
-            $this->SetFontSize($this->pdfSettings['fontSize']);
+            $this->setFontSize($this->pdfSettings['fontSize']);
         }
 
         foreach ($this->headerParts as $headerPart) {
@@ -80,14 +80,14 @@ class TcpdfWrapper extends TCPDF
         }
     }
 
-    public function footer(): void
+    public function Footer(): void
     {
         if (empty($this->pdfSettings['footer'] ?? [])) {
             return;
         }
 
         if (!empty($this->pdfSettings['fontSize'])) {
-            $this->SetFontSize($this->pdfSettings['fontSize']);
+            $this->setFontSize($this->pdfSettings['fontSize']);
         }
 
         foreach ($this->footerParts as $footerPart) {
@@ -129,7 +129,7 @@ class TcpdfWrapper extends TCPDF
         $oldFontSize = null;
         if (isset($config['fontSize']) && is_numeric($config['fontSize'])) {
             $oldFontSize = $this->getFontSizePt();
-            $this->SetFontSize((float)$config['fontSize']);
+            $this->setFontSize((float)$config['fontSize']);
         }
 
         if (isset($config['spacingY']) && is_numeric($config['spacingY'])) {
@@ -151,7 +151,7 @@ class TcpdfWrapper extends TCPDF
         );
 
         if (is_null($oldFontSize) === false) {
-            $this->SetFontSize($oldFontSize);
+            $this->setFontSize($oldFontSize);
         }
     }
 }

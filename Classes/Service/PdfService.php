@@ -143,9 +143,9 @@ readonly class PdfService implements DocumentRenderServiceInterface
         } else {
             if (!empty($pdfSettings['header']['margin'])) {
                 $pdf->setHeaderMargin((int)$pdfSettings['header']['margin']);
-                $pdf->SetMargins(PDF_MARGIN_LEFT, (float)$pdfSettings['header']['margin'], PDF_MARGIN_RIGHT);
+                $pdf->setMargins(PDF_MARGIN_LEFT, (float)$pdfSettings['header']['margin'], PDF_MARGIN_RIGHT);
             } else {
-                $pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+                $pdf->setMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
             }
         }
 
@@ -180,7 +180,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
             $fontSize = $pdfSettings['fontSize'];
         }
 
-        $pdf->SetFont($font, $fontStyle, $fontSize);
+        $pdf->setFont($font, $fontStyle, $fontSize);
 
         $colorArray = [0, 0, 0];
 
@@ -226,15 +226,15 @@ readonly class PdfService implements DocumentRenderServiceInterface
     private function renderMarker(TcpdfWrapper $pdf, PdfDemand $pdfDemand): void
     {
         if ($pdfDemand->getFoldMarksEnabled()) {
-            $pdf->SetLineWidth(0.1);
+            $pdf->setLineWidth(0.1);
             $pdf->Line(6.0, 105.0, 8.0, 105.0);
             $pdf->Line(6.0, 148.5, 10.0, 148.5);
             $pdf->Line(6.0, 210.0, 8.0, 210.0);
-            $pdf->SetLineWidth(0.2);
+            $pdf->setLineWidth(0.2);
         }
 
         if ($pdfDemand->getAddressFieldMarksEnabled()) {
-            $pdf->SetLineWidth(0.1);
+            $pdf->setLineWidth(0.1);
 
             $pdf->Line(20.0, 45.0, 21.0, 45.0);
             $pdf->Line(20.0, 45.0, 20.0, 46.0);
@@ -247,7 +247,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
             $pdf->Line(105.0, 90.0, 104.0, 90.0);
             $pdf->Line(105.0, 90.0, 105.0, 89.0);
 
-            $pdf->SetLineWidth(0.2);
+            $pdf->setLineWidth(0.2);
         }
     }
 
