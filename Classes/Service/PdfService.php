@@ -14,12 +14,15 @@ namespace Extcode\CartPdf\Service;
 use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
 use Extcode\CartPdf\Domain\Model\Dto\PdfDemand;
 use TYPO3\CMS\Core\Http\ApplicationType;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
+use TYPO3\CMS\Fluid\View\StandaloneView;
 
 readonly class PdfService implements DocumentRenderServiceInterface
 {
     private array $configuration;
+    private array $viewSettings;
 
     public function __construct(
         private readonly ConfigurationManager $configurationManager,
@@ -40,18 +43,118 @@ readonly class PdfService implements DocumentRenderServiceInterface
             ConfigurationManagerInterface::CONFIGURATION_TYPE_FRAMEWORK,
             'CartPdf'
         );
+
+        $viewSettings = $this->configuration['view'] ?? [];
+        $this->viewSettings = is_array($viewSettings) ? $viewSettings : [];
+    }
+
+    public function getStandaloneView(
+        string $templatePath,
+        string $templateFileName = 'Default',
+        string $format = 'html',
+    ): StandaloneView {
+        $templatePathAndFileName = $templatePath . $templateFileName . '.' . $format;
+
+        /** @var StandaloneView $view */
+        $view = GeneralUtility::makeInstance(StandaloneView::class);
+        $view->setFormat($format);
+
+        if (!empty($this->viewSettings)) {
+            $view->setLayoutRootPaths($this->viewSettings['layoutRootPaths']);
+            $view->setPartialRootPaths($this->viewSettings['partialRootPaths']);
+
+            if ($this->viewSettings['templateRootPaths']) {
+                foreach ($this->viewSettings['templateRootPaths'] as $pathNameKey => $pathNameValue) {
+                    $templateRootPath = GeneralUtility::getFileAbsFileName(
+                        $pathNameValue
+                    );
+
+                    $completePath = $templateRootPath . $templatePathAndFileName;
+
+                    if (file_exists($completePath)) {
+                        $view->setTemplatePathAndFilename($completePath);
+                    }
+                }
+            }
+        }
+
+        return $view;
+    }
+
+    public function renderStandaloneView(
+        string $templatePath,
+        string $type,
+        array $config,
+        array $assignToView = [],
+    ): string {
+        $view = $this->getStandaloneView($templatePath, ucfirst($type));
+
+        if (!empty($config['file'])) {
+            $file = GeneralUtility::getFileAbsFileName($config['file']);
+            $view->assign('file', $file);
+            $view->assign('file_base64', base64_encode(file_get_contents($file)));
+            $view->assign('file_mimetype', mime_content_type($file));
+
+            if (!empty($config['width'])) {
+                $view->assign('width', $config['width']);
+            }
+
+            if (!empty($config['height'])) {
+                $view->assign('height', $config['height']);
+            }
+        }
+
+        $view->assignMultiple($assignToView);
+
+        $content = (string)$view->render();
+        return trim(preg_replace('~[\\n]+~', '', $content));
     }
 
     public function renderDocument(OrderItem $orderItem, string $pdfType): string
     {
         $pdfType .= 'Pdf';
-        $pdfSettings = $this->configuration[$pdfType];
+        $pdfSettings = $this->configuration[$pdfType] ?? [];
+        $pdfSettings = is_array($pdfSettings) ? $pdfSettings : [];
         $pdfDemand = PdfDemand::createFromSettings($pdfSettings);
 
         $pdf = TcpdfWrapper::createWithTypeAndSettings(
             $pdfType,
             $this->configuration,
         );
+
+        foreach ($pdfSettings['header']['html'] ?? [] as $partName => $partConfig) {
+            $assignToView = [];
+            if ($partName === 'page') {
+                $assignToView['numPage'] = $pdf->getAliasNumPage();
+                $assignToView['numPages'] = $pdf->getAliasNbPages();
+            }
+
+            $content = $this->renderStandaloneView(
+                $pdfSettings['header']['html'][$partName]['templatePath'],
+                $partName,
+                $partConfig,
+                $assignToView,
+            );
+
+            $pdf->addHeaderPart($content, $partConfig);
+        }
+
+        foreach ($pdfSettings['footer']['html'] ?? [] as $partName => $partConfig) {
+            $assignToView = [];
+            if ($partName === 'page') {
+                $assignToView['numPage'] = $pdf->getAliasNumPage();
+                $assignToView['numPages'] = $pdf->getAliasNbPages();
+            }
+
+            $content = $this->renderStandaloneView(
+                $pdfSettings['footer']['html'][$partName]['templatePath'],
+                $partName,
+                $partConfig,
+                $assignToView,
+            );
+
+            $pdf->addFooterPart($content, $partConfig);
+        }
 
         if (empty($pdfSettings['header'])) {
             $pdf->setPrintHeader(false);
@@ -110,7 +213,8 @@ readonly class PdfService implements DocumentRenderServiceInterface
             foreach ($pdfSettings['letterhead']['html'] as $partName => $partConfig) {
                 $templatePath = '/' . ucfirst($pdfType) . '/Letterhead/';
                 $assignToView = ['orderItem' => $orderItem];
-                $pdf->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
+                $content = $this->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
+                $pdf->writeHtmlCellWithConfig($content, $partConfig);
             }
         }
 
@@ -118,7 +222,8 @@ readonly class PdfService implements DocumentRenderServiceInterface
             foreach ($pdfSettings['body']['before']['html'] as $partName => $partConfig) {
                 $templatePath = '/' . ucfirst($pdfType) . '/Body/Before/';
                 $assignToView = ['orderItem' => $orderItem];
-                $pdf->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
+                $content = $this->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
+                $pdf->writeHtmlCellWithConfig($content, $partConfig);
             }
         }
 
@@ -128,7 +233,8 @@ readonly class PdfService implements DocumentRenderServiceInterface
             foreach ($pdfSettings['body']['after']['html'] as $partName => $partConfig) {
                 $templatePath = '/' . ucfirst($pdfType) . '/Body/After/';
                 $assignToView = ['orderItem' => $orderItem];
-                $pdf->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
+                $content = $this->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
+                $pdf->writeHtmlCellWithConfig($content, $partConfig);
             }
         }
 
@@ -172,27 +278,27 @@ readonly class PdfService implements DocumentRenderServiceInterface
             $config['spacingY'] = 5;
         }
 
-        $headerOut = $this->renderCartHeader($pdf, $orderItem, $pdfType);
-        $bodyOut = $this->renderCartBody($pdf, $orderItem, $pdfType);
-        $footerOut = $this->renderCartFooter($pdf, $orderItem, $pdfType);
+        $headerOut = $this->renderCartHeader($orderItem, $pdfType);
+        $bodyOut = $this->renderCartBody($orderItem, $pdfType);
+        $footerOut = $this->renderCartFooter($orderItem, $pdfType);
 
         $content = '<table cellpadding="3">' . $headerOut . $bodyOut . $footerOut . '</table>';
 
         $pdf->writeHtmlCellWithConfig($content, $config);
     }
 
-    private function renderCartHeader(TcpdfWrapper $pdf, OrderItem $orderItem, string $pdfType): string
+    private function renderCartHeader(OrderItem $orderItem, string $pdfType): string
     {
-        $view = $pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Header');
+        $view = $this->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Header');
         $view->assign('orderItem', $orderItem);
         $header = $view->render();
 
         return trim(preg_replace('~[\\n]+~', '', $header));
     }
 
-    private function renderCartBody(TcpdfWrapper $pdf, OrderItem $orderItem, string $pdfType): string
+    private function renderCartBody(OrderItem $orderItem, string $pdfType): string
     {
-        $view = $pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Product');
+        $view = $this->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Product');
         $view->assign('orderItem', $orderItem);
 
         $bodyOut = '';
@@ -207,9 +313,9 @@ readonly class PdfService implements DocumentRenderServiceInterface
         return $bodyOut;
     }
 
-    private function renderCartFooter(TcpdfWrapper $pdf, OrderItem $orderItem, string $pdfType): string
+    private function renderCartFooter(OrderItem $orderItem, string $pdfType): string
     {
-        $view = $pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Footer');
+        $view = $this->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Footer');
         $view->assign('orderSettings', $this->configuration[$pdfType]['body']['order']);
         $view->assign('orderItem', $orderItem);
         $footer = $view->render();
