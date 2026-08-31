@@ -12,20 +12,18 @@ namespace Extcode\CartPdf\Service;
  */
 
 use TCPDF;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
 
 class TcpdfWrapper extends TCPDF
 {
     private readonly array $pdfSettings;
-    private readonly array $viewSettings;
+    private array $headerParts = [];
+    private array $footerParts = [];
 
     public function __construct(
         private readonly string $pdfType,
         array $settings,
     ) {
         $this->pdfSettings = $settings[$this->pdfType];
-        $this->viewSettings = $settings['view'];
 
         parent::__construct();
     }
@@ -40,29 +38,33 @@ class TcpdfWrapper extends TCPDF
         );
     }
 
+    public function addHeaderPart($content, array $config): void
+    {
+        $this->headerParts[] = ['content' => $content, 'config' => $config];
+    }
+
+    public function addFooterPart($content, array $config): void
+    {
+        $this->footerParts[] = ['content' => $content, 'config' => $config];
+    }
+
     public function getCartPdfType(): string
     {
         return $this->pdfType;
     }
 
-    public function header(): void
+    public function Header(): void
     {
         if (empty($this->pdfSettings['header'] ?? [])) {
             return;
         }
 
         if (!empty($this->pdfSettings['fontSize'])) {
-            $this->SetFontSize($this->pdfSettings['fontSize']);
+            $this->setFontSize($this->pdfSettings['fontSize']);
         }
 
-        if (!empty($this->pdfSettings['header']['html'])) {
-            foreach ($this->pdfSettings['header']['html'] as $partName => $partConfig) {
-                $this->renderStandaloneView(
-                    $this->pdfSettings['header']['html'][$partName]['templatePath'],
-                    $partName,
-                    $partConfig
-                );
-            }
+        foreach ($this->headerParts as $headerPart) {
+            $this->writeHtmlCellWithConfig($headerPart['content'], $headerPart['config']);
         }
 
         if (!empty($this->pdfSettings['header']['line'])) {
@@ -78,24 +80,18 @@ class TcpdfWrapper extends TCPDF
         }
     }
 
-    public function footer(): void
+    public function Footer(): void
     {
         if (empty($this->pdfSettings['footer'] ?? [])) {
             return;
         }
 
         if (!empty($this->pdfSettings['fontSize'])) {
-            $this->SetFontSize($this->pdfSettings['fontSize']);
+            $this->setFontSize($this->pdfSettings['fontSize']);
         }
 
-        if (!empty($this->pdfSettings['footer']['html'])) {
-            foreach ($this->pdfSettings['footer']['html'] as $partName => $partConfig) {
-                $this->renderStandaloneView(
-                    $this->pdfSettings['footer']['html'][$partName]['templatePath'],
-                    $partName,
-                    $partConfig
-                );
-            }
+        foreach ($this->footerParts as $footerPart) {
+            $this->writeHtmlCellWithConfig($footerPart['content'], $footerPart['config']);
         }
 
         if (!empty($this->pdfSettings['footer']['line'])) {
@@ -109,42 +105,6 @@ class TcpdfWrapper extends TCPDF
                 );
             }
         }
-    }
-
-    public function renderStandaloneView(
-        string $templatePath,
-        string $type,
-        array $config,
-        array $assignToView = []
-    ): void {
-        $view = $this->getStandaloneView($templatePath, ucfirst($type));
-
-        if (!empty($config['file'])) {
-            $file = GeneralUtility::getFileAbsFileName($config['file']);
-            $view->assign('file', $file);
-            $view->assign('file_base64', base64_encode(file_get_contents($file)));
-            $view->assign('file_mimetype', mime_content_type($file));
-
-            if (!empty($config['width'])) {
-                $view->assign('width', $config['width']);
-            }
-
-            if (!empty($config['height'])) {
-                $view->assign('height', $config['height']);
-            }
-        }
-
-        if ($type === 'page') {
-            $view->assign('numPage', $this->getAliasNumPage());
-            $view->assign('numPages', $this->getAliasNbPages());
-        }
-
-        $view->assignMultiple($assignToView);
-
-        $content = (string)$view->render();
-        $content = trim(preg_replace('~[\\n]+~', '', $content));
-
-        $this->writeHtmlCellWithConfig($content, $config);
     }
 
     public function writeHtmlCellWithConfig(string $content, array $config): void
@@ -167,9 +127,9 @@ class TcpdfWrapper extends TCPDF
         }
 
         $oldFontSize = null;
-        if (empty($config['fontSize']) && is_numeric($config['fontSize'])) {
+        if (isset($config['fontSize']) && is_numeric($config['fontSize'])) {
             $oldFontSize = $this->getFontSizePt();
-            $this->SetFontSize((float)$config['fontSize']);
+            $this->setFontSize((float)$config['fontSize']);
         }
 
         if (isset($config['spacingY']) && is_numeric($config['spacingY'])) {
@@ -191,40 +151,7 @@ class TcpdfWrapper extends TCPDF
         );
 
         if (is_null($oldFontSize) === false) {
-            $this->SetFontSize($oldFontSize);
+            $this->setFontSize($oldFontSize);
         }
-    }
-
-    public function getStandaloneView(
-        string $templatePath,
-        string $templateFileName = 'Default',
-        string $format = 'html'
-    ): StandaloneView {
-        $templatePathAndFileName = $templatePath . $templateFileName . '.' . $format;
-
-        /** @var StandaloneView $view */
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setFormat($format);
-
-        if (!empty($this->viewSettings)) {
-            $view->setLayoutRootPaths($this->viewSettings['layoutRootPaths']);
-            $view->setPartialRootPaths($this->viewSettings['partialRootPaths']);
-
-            if ($this->viewSettings['templateRootPaths']) {
-                foreach ($this->viewSettings['templateRootPaths'] as $pathNameKey => $pathNameValue) {
-                    $templateRootPath = GeneralUtility::getFileAbsFileName(
-                        $pathNameValue
-                    );
-
-                    $completePath = $templateRootPath . $templatePathAndFileName;
-
-                    if (file_exists($completePath)) {
-                        $view->setTemplatePathAndFilename($completePath);
-                    }
-                }
-            }
-        }
-
-        return $view;
     }
 }

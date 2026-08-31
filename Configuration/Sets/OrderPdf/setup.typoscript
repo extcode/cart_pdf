@@ -1,0 +1,152 @@
+plugin.tx_cartpdf {
+    orderPdf {
+        storageRepository = {$plugin.tx_cartpdf.orderPdf.storageRepository}
+        storageFolder = {$plugin.tx_cartpdf.orderPdf.storageFolder}
+
+        debug = 0
+
+        # font = Helvetica
+        # fontStyle =
+        fontSize = 10
+
+        # drawColor = 0,0,0
+
+        enableFoldMarks = 1
+        enableAddressFieldMarks = 1
+
+        header {
+            margin = 30mm
+            html {
+                logo {
+                    width = 50
+                    positionX = 10
+                    positionY = 5
+                    templatePath = /OrderPdf/Header/
+                    file = EXT:cart_pdf/Documentation/Images/cart_pdf_logo.png
+                }
+
+                content {
+                    width = 120
+                    positionX = 80
+                    positionY = 5
+                    templatePath = /OrderPdf/Header/
+                    fontSize = 8
+                    align = R
+                }
+            }
+
+            line {
+                1 {
+                    x1 = 10
+                    y1 = 24
+                    x2 = 200
+                    y2 = 24
+                    style {
+                        width = 0.5
+                    }
+                }
+            }
+        }
+
+        footer {
+            margin = 40mm
+
+            html {
+                content {
+                    width = 190
+                    height = 35
+                    positionX = 15
+                    positionY = 265
+                    templatePath = /OrderPdf/Footer/
+                    fontSize = 8
+                }
+
+                page {
+                    width = 100
+                    height = 10
+                    positionX = 115
+                    positionY = 290
+                    templatePath = /OrderPdf/Footer/
+                    fontSize = 8
+                    align = R
+                }
+            }
+
+            line {
+                1 {
+                    x1 = 10
+                    y1 = 262
+                    x2 = 200
+                    y2 = 262
+                    style {
+                        width = 0.5
+                    }
+                }
+            }
+        }
+
+        letterhead {
+            html {
+                envelopeAddress {
+                    width = 83
+                    height = 10
+                    positionX = 21
+                    positionY = 46
+                    fontSize = 6
+                }
+
+                invoiceAddress {
+                    width = 83
+                    height = 33
+                    positionX = 21
+                    positionY = 56
+                }
+
+                date {
+                    width = 60
+                    height = 5
+                    positionX = 130
+                    positionY = 84
+                    align = R
+                }
+            }
+        }
+
+        body {
+            before {
+                html {
+                    overview {
+                        width = 170
+                        positionX = 20
+                        positionY = 100
+                        fontSize = 12
+                    }
+                }
+            }
+
+            order {
+                width=170
+                positionX=20
+                spacingY = 10
+                fontSize=8
+
+                summary < plugin.tx_cart.settings.showCartAction.summary
+            }
+
+            after {
+                html {
+                    greetings {
+                        width = 170
+                        height = 20
+                        positionX = 20
+                        spacingY = 20
+                    }
+                }
+            }
+        }
+    }
+}
+
+module.tx_cartpdf {
+    orderPdf < plugin.tx_cartpdf.orderPdf
+}
