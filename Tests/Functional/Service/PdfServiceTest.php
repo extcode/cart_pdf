@@ -115,7 +115,7 @@ final class PdfServiceTest extends FunctionalTestCase
         $text = $this->extractText($this->renderDocument('invoice'));
 
         self::assertStringContainsString('Price (net) 855,46 €', $text);
-        self::assertStringContainsString('(19 %) 162,53 €', $text);
+        self::assertStringContainsString('VAT (19 %) 162,53 €', $text);
         self::assertStringContainsString('Standardversand 4,90 €', $text);
         self::assertStringContainsString('Total Price (gross) 1.022,89 €', $text);
     }
