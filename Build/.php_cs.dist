@@ -39,7 +39,7 @@ return PhpCsFixer\Config::create()
     ->setFinder(
         PhpCsFixer\Finder::create()
             ->in(__DIR__ . '/../')
-            ->exclude('.build')
+            ->exclude('.Build')
             ->exclude('Documentation')
             ->exclude('Resources')
             ->notName('ext_emconf.php')
