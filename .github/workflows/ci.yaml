@@ -121,3 +121,11 @@ jobs:
         env:
           typo3DatabaseDriver: pdo_sqlite
         run: .Build/bin/phpunit -c Build/FunctionalTests.xml
+
+      - name: Upload rendered PDFs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rendered-pdfs-php-${{ matrix.php-version }}
+          path: .Build/test-artifacts/pdf/
+          if-no-files-found: warn

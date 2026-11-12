@@ -135,7 +135,7 @@ final class PdfServiceTest extends FunctionalTestCase
     {
         $this->importPHPDataSet(__DIR__ . '/../Fixtures/OrderItemWithManyProducts.php');
 
-        $document = $this->parsePdf($this->renderDocument('invoice'));
+        $document = $this->parsePdf($this->renderDocument('invoice', 'order-item-with-many-products'));
         $pages = $document->getPages();
         $text = $this->normalizeText($document->getText());
 
@@ -157,9 +157,29 @@ final class PdfServiceTest extends FunctionalTestCase
         }
     }
 
-    private function renderDocument(string $documentType): string
+    private function renderDocument(string $documentType, string $scenario = 'order-item'): string
     {
-        return $this->get(PdfService::class)->renderDocument($this->getOrderItem(), $documentType);
+        $pdfContent = $this->get(PdfService::class)->renderDocument($this->getOrderItem(), $documentType);
+        $this->keepAsArtifact($pdfContent, $scenario . '-' . $documentType);
+
+        return $pdfContent;
+    }
+
+    /**
+     * Stores the rendered document, so it can be checked visually. CI uploads
+     * the directory as artifact.
+     */
+    private function keepAsArtifact(string $pdfContent, string $fileName): void
+    {
+        $artifactPath = dirname(__DIR__, 3) . '/.Build/test-artifacts/pdf';
+        if (!is_dir($artifactPath)) {
+            mkdir($artifactPath, 0o775, true);
+        }
+
+        file_put_contents(
+            $artifactPath . '/' . $fileName . '.pdf',
+            $pdfContent
+        );
     }
 
     private function getOrderItem(): OrderItem
