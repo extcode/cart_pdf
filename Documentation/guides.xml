@@ -8,7 +8,7 @@
                edit-on-github-branch="main"
                edit-on-github="extcode/cart_pdf"
                typo3-core-preferred="beta"
-               interlink-shortcode="extcode/cart_pdf"
+               interlink-shortcode="extcode/cart-pdf"
     />
     <project title="Cart Pdf"
              release="8.0.0"
