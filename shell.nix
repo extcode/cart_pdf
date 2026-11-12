@@ -35,7 +35,7 @@ let
     ];
 
     text = ''
-      ./.Build/bin/php-cs-fixer fix --config=Build/.php-cs-fixer.dist.php -v --dry-run --diff
+      "$PROJECT_ROOT/Build/Scripts/cgl.sh"
     '';
   };
 
@@ -47,7 +47,7 @@ let
     ];
 
     text = ''
-      ./.Build/bin/php-cs-fixer fix --config=Build/.php-cs-fixer.dist.php
+      "$PROJECT_ROOT/Build/Scripts/cgl.sh" --fix
     '';
   };
 
@@ -59,7 +59,7 @@ let
     ];
 
     text = ''
-      find ./*.php Classes Configuration Tests -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l
+      "$PROJECT_ROOT/Build/Scripts/lint-php.sh"
     '';
   };
 
@@ -71,7 +71,7 @@ let
     ];
 
     text = ''
-      ./.Build/bin/phpstan analyse -c Build/phpstan.neon -a .Build/vendor/tecnickcom/tcpdf/tcpdf_autoconfig.php
+      "$PROJECT_ROOT/Build/Scripts/phpstan.sh"
     '';
   };
 
@@ -83,7 +83,7 @@ let
     ];
     text = ''
       project-install
-      ./.Build/bin/phpunit -c Build/UnitTests.xml
+      "$PROJECT_ROOT/Build/Scripts/phpunit.sh" unit
     '';
   };
 
@@ -95,7 +95,7 @@ let
     ];
     text = ''
       project-install
-      ./.Build/bin/phpunit -c Build/FunctionalTests.xml
+      "$PROJECT_ROOT/Build/Scripts/phpunit.sh" functional
     '';
   };
 

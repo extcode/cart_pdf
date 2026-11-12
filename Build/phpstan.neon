@@ -7,3 +7,5 @@ parameters:
     - ../Configuration
     - ../Tests
     - ../ext_emconf.php
+  bootstrapFiles:
+    - ../.Build/vendor/tecnickcom/tcpdf/tcpdf_autoconfig.php
