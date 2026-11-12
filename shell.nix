@@ -35,7 +35,7 @@ let
     ];
 
     text = ''
-      ./.build/bin/php-cs-fixer fix --config=Build/.php-cs-fixer.dist.php -v --dry-run --diff
+      ./.Build/bin/php-cs-fixer fix --config=Build/.php-cs-fixer.dist.php -v --dry-run --diff
     '';
   };
 
@@ -47,7 +47,7 @@ let
     ];
 
     text = ''
-      ./.build/bin/php-cs-fixer fix --config=Build/.php-cs-fixer.dist.php
+      ./.Build/bin/php-cs-fixer fix --config=Build/.php-cs-fixer.dist.php
     '';
   };
 
@@ -71,7 +71,7 @@ let
     ];
 
     text = ''
-      ./.build/bin/phpstan analyse -c Build/phpstan.neon -a .build/vendor/tecnickcom/tcpdf/tcpdf_autoconfig.php
+      ./.Build/bin/phpstan analyse -c Build/phpstan.neon -a .Build/vendor/tecnickcom/tcpdf/tcpdf_autoconfig.php
     '';
   };
 
@@ -83,7 +83,7 @@ let
     ];
     text = ''
       project-install
-      ./.build/bin/phpunit -c Build/UnitTests.xml
+      ./.Build/bin/phpunit -c Build/UnitTests.xml
     '';
   };
 
