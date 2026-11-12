@@ -7,7 +7,7 @@ namespace Extcode\CartPdf\Tests\Domain\Model\Dto;
 use Extcode\CartPdf\Domain\Model\Dto\PdfDemand;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class PdfDemandTest extends UnitTestCase
+final class PdfDemandTest extends UnitTestCase
 {
     /**
      * @var PdfDemand
