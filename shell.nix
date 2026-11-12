@@ -87,6 +87,18 @@ let
     '';
   };
 
+  projectTestFunctional = pkgs.writeShellApplication {
+    name = "project-test-functional";
+    runtimeInputs = [
+      php
+      projectInstall
+    ];
+    text = ''
+      project-install
+      ./.Build/bin/phpunit -c Build/FunctionalTests.xml
+    '';
+  };
+
 in pkgs.mkShell {
   name = "TYPO3 Extension cart";
   buildInputs = [
@@ -98,6 +110,7 @@ in pkgs.mkShell {
     projectLint
     projectPhpstan
     projectTestUnit
+    projectTestFunctional
   ];
 
   shellHook = ''
