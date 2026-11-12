@@ -25,7 +25,9 @@ return [
             'include_static_file' => implode(',', [
                 'EXT:cart/Configuration/TypoScript',
                 'EXT:cart_pdf/Configuration/TypoScript',
+                'EXT:cart_pdf/Configuration/TypoScript/OrderPdf',
                 'EXT:cart_pdf/Configuration/TypoScript/InvoicePdf',
+                'EXT:cart_pdf/Configuration/TypoScript/DeliveryPdf',
             ]),
         ],
     ],
