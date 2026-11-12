@@ -2,67 +2,71 @@
 
 declare(strict_types=1);
 
-namespace Extcode\CartPdf\Tests\Domain\Model\Dto;
+namespace Extcode\CartPdf\Tests\Unit\Domain\Model\Dto;
+
+/*
+ * This file is part of the package extcode/cart-pdf.
+ *
+ * For the full copyright and license information, please read the
+ * LICENSE file that was distributed with this source code.
+ */
 
 use Extcode\CartPdf\Domain\Model\Dto\PdfDemand;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
+#[CoversClass(PdfDemand::class)]
 final class PdfDemandTest extends UnitTestCase
 {
-    /**
-     * @var PdfDemand
-     */
-    protected $fixture;
-
-    protected function setUp(): void
+    #[Test]
+    public function getDebugInitiallyReturnsZero(): void
     {
-        $this->fixture = new PdfDemand();
+        self::assertSame(0, (new PdfDemand())->getDebug());
     }
 
-    protected function tearDown(): void
+    #[Test]
+    public function getFontSizeInitiallyReturnsDefaultFontSize(): void
     {
-        unset($this->fixture);
+        self::assertSame(8, (new PdfDemand())->getFontSize());
     }
 
-    /**
-     * @test
-     */
-    public function getDebugInitiallyReturnsZero()
+    #[Test]
+    public function getFoldMarksEnabledInitiallyReturnsTrue(): void
     {
-        self::assertSame(
-            0,
-            $this->fixture->getDebug()
-        );
+        self::assertTrue((new PdfDemand())->getFoldMarksEnabled());
     }
 
-    /**
-     * @test
-     */
-    public function getFontSizeInitiallyReturnsDefaultFontSize()
+    #[Test]
+    public function getAddressFieldMarksEnabledInitiallyReturnsTrue(): void
     {
-        self::assertSame(
-            8,
-            $this->fixture->getFontSize()
-        );
+        self::assertTrue((new PdfDemand())->getAddressFieldMarksEnabled());
     }
 
-    /**
-     * @test
-     */
-    public function getFoldMarksEnabledInitiallyReturnsTrue()
+    #[Test]
+    public function createFromSettingsTakesValuesFromSettings(): void
     {
-        self::assertTrue(
-            $this->fixture->getFoldMarksEnabled()
-        );
+        $subject = PdfDemand::createFromSettings([
+            'debug' => '1',
+            'fontSize' => '10',
+            'enableFoldMarks' => '1',
+            'enableAddressFieldMarks' => '0',
+        ]);
+
+        self::assertSame(1, $subject->getDebug());
+        self::assertSame(10, $subject->getFontSize());
+        self::assertTrue($subject->getFoldMarksEnabled());
+        self::assertFalse($subject->getAddressFieldMarksEnabled());
     }
 
-    /**
-     * @test
-     */
-    public function getAddressFieldMarksEnabledInitiallyReturnsTrue()
+    #[Test]
+    public function createFromSettingsUsesDefaultsForMissingSettings(): void
     {
-        self::assertTrue(
-            $this->fixture->getAddressFieldMarksEnabled()
-        );
+        $subject = PdfDemand::createFromSettings([]);
+
+        self::assertSame(0, $subject->getDebug());
+        self::assertSame(11, $subject->getFontSize());
+        self::assertFalse($subject->getFoldMarksEnabled());
+        self::assertFalse($subject->getAddressFieldMarksEnabled());
     }
 }
