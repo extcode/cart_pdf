@@ -130,6 +130,24 @@ final class PdfServiceTest extends FunctionalTestCase
         self::assertStringContainsString('Mit freundlichen Grüßen', $text);
     }
 
+    /**
+     * Each line of text is a separate chunk in the PDF. A line that is too
+     * long for its cell is wrapped and split into several chunks.
+     */
+    #[Test]
+    public function invoiceRendersSmallTextLinesWithoutWrapping(): void
+    {
+        $page = $this->parsePdf($this->renderDocument('invoice'))->getPages()[0];
+        $lines = array_map(
+            fn(array $chunk): string => $this->normalizeText($chunk[1]),
+            $page->getDataTm()
+        );
+
+        self::assertContains('Muster GmbH * Musterstraße 0 * 00000 Musterstadt', $lines, 'Sender line fits in the address window.');
+        self::assertContains('Geschäftsführer:', $lines, 'Footer labels fit in their column.');
+        self::assertContains('DE00 0000 0000 0000 0000 00', $lines, 'IBAN fits in its column.');
+    }
+
     #[Test]
     public function invoiceWithManyProductsContinuesOnFurtherPages(): void
     {
