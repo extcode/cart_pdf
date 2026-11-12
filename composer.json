@@ -61,5 +61,13 @@
         "phpstan/phpstan": "^2.1",
         "smalot/pdfparser": "^2.12",
         "typo3/testing-framework": "^9.3"
+    },
+    "scripts": {
+        "project:cgl": "Build/Scripts/cgl.sh",
+        "project:cgl:fix": "Build/Scripts/cgl.sh --fix",
+        "project:lint:php": "Build/Scripts/lint-php.sh",
+        "project:phpstan": "Build/Scripts/phpstan.sh",
+        "project:test:unit": "Build/Scripts/phpunit.sh unit",
+        "project:test:functional": "Build/Scripts/phpunit.sh functional"
     }
 }
