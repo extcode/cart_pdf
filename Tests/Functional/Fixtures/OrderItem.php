@@ -19,6 +19,8 @@ return [
             'order_date' => (new DateTimeImmutable('2026-11-10 09:30:00 UTC'))->getTimestamp(),
             'invoice_number' => 'RE-2026-0042',
             'invoice_date' => (new DateTimeImmutable('2026-11-12 12:00:00 UTC'))->getTimestamp(),
+            'delivery_number' => 'LS-2026-0007',
+            'delivery_date' => (new DateTimeImmutable('2026-11-13 12:00:00 UTC'))->getTimestamp(),
             'currency' => '€',
             'currency_code' => 'EUR',
             'currency_sign' => '€',

@@ -153,7 +153,7 @@ final class PdfServiceTest extends FunctionalTestCase
     {
         $this->importPHPDataSet(__DIR__ . '/../Fixtures/OrderItemWithManyProducts.php');
 
-        $document = $this->parsePdf($this->renderDocument('invoice', 'order-item-with-many-products'));
+        $document = $this->parsePdf($this->renderDocument('invoice', 'with-many-products'));
         $pages = $document->getPages();
         $text = $this->normalizeText($document->getText());
 
@@ -175,10 +175,104 @@ final class PdfServiceTest extends FunctionalTestCase
         }
     }
 
-    private function renderDocument(string $documentType, string $scenario = 'order-item'): string
+    #[Test]
+    public function orderIsAValidPdfWithOnePage(): void
+    {
+        $pdfContent = $this->renderDocument('order');
+
+        self::assertStringStartsWith('%PDF-', $pdfContent);
+        self::assertCount(1, $this->parsePdf($pdfContent)->getPages());
+    }
+
+    #[Test]
+    public function orderContainsOrderNumberAndDate(): void
+    {
+        $text = $this->extractText($this->renderDocument('order'));
+
+        self::assertStringContainsString('Order Number: ORD-2026-0815', $text);
+        self::assertStringContainsString('Musterstadt, den 10.11.2026', $text);
+        self::assertStringNotContainsString('RE-2026-0042', $text);
+    }
+
+    #[Test]
+    public function orderContainsBillingAddressProductsAndSummary(): void
+    {
+        $text = $this->extractText($this->renderDocument('order'));
+
+        self::assertStringContainsString('Müller & Söhne GmbH', $text);
+        self::assertStringContainsString('Ägäis“ 499,00 € 2 998,00 €', $text);
+        self::assertStringContainsString('günstiger 19,99 € 1 19,99 €', $text);
+        self::assertStringContainsString('VAT (19 %) 162,53 €', $text);
+        self::assertStringContainsString('Total Price (gross) 1.022,89 €', $text);
+    }
+
+    /**
+     * The template DeliveryPdf/Order/Footer.html is empty. Rendering it
+     * must not break the document.
+     *
+     * @see https://github.com/extcode/cart_pdf/issues/47
+     */
+    #[Test]
+    public function deliveryNoteIsAValidPdfWithOnePage(): void
+    {
+        $pdfContent = $this->renderDocument('delivery');
+
+        self::assertStringStartsWith('%PDF-', $pdfContent);
+        self::assertCount(1, $this->parsePdf($pdfContent)->getPages());
+    }
+
+    #[Test]
+    public function deliveryNoteContainsDeliveryNumberAndDate(): void
+    {
+        $text = $this->extractText($this->renderDocument('delivery'));
+
+        self::assertStringContainsString('Delivery Number: LS-2026-0007', $text);
+        self::assertStringContainsString('Musterstadt, den 13.11.2026', $text);
+    }
+
+    #[Test]
+    public function deliveryNoteContainsBillingAddressAndProductsWithoutPrices(): void
+    {
+        $text = $this->extractText($this->renderDocument('delivery'));
+
+        self::assertStringContainsString('Müller & Söhne GmbH', $text);
+        self::assertStringContainsString('2 Größenverstellbarer Bürostuhl „Ägäis“', $text);
+        self::assertStringContainsString('1 Kabel & Adapter <USB-C> für 50% günstiger', $text);
+        self::assertStringNotContainsString('€', $text);
+    }
+
+    #[Test]
+    public function deliveryNoteWithEmptyOrderHeaderAndFooterTemplatesContainsProducts(): void
+    {
+        $this->addTemplateRootPath('EXT:cart_pdf/Tests/Functional/Fixtures/Templates/EmptyOrderHeaderAndFooter/');
+
+        $pdfContent = $this->renderDocument('delivery', 'with-empty-order-header-and-footer');
+        $text = $this->extractText($pdfContent);
+
+        self::assertStringStartsWith('%PDF-', $pdfContent);
+        self::assertStringContainsString('2 Größenverstellbarer Bürostuhl „Ägäis“', $text);
+        self::assertStringContainsString('1 Kabel & Adapter <USB-C> für 50% günstiger', $text);
+        self::assertStringNotContainsString('Count', $text, 'The header of the product table is not rendered.');
+    }
+
+    private function addTemplateRootPath(string $templateRootPath): void
+    {
+        $this->getConnectionPool()->getConnectionForTable('sys_template')->update(
+            'sys_template',
+            [
+                'config' => implode(PHP_EOL, [
+                    'plugin.tx_cartpdf.view.templateRootPaths.10 = ' . $templateRootPath,
+                    'module.tx_cartpdf.view.templateRootPaths.10 = ' . $templateRootPath,
+                ]),
+            ],
+            ['uid' => 1]
+        );
+    }
+
+    private function renderDocument(string $documentType, string $scenario = ''): string
     {
         $pdfContent = $this->get(PdfService::class)->renderDocument($this->getOrderItem(), $documentType);
-        $this->keepAsArtifact($pdfContent, $scenario . '-' . $documentType);
+        $this->keepAsArtifact($pdfContent, $scenario === '' ? $documentType : $documentType . '-' . $scenario);
 
         return $pdfContent;
     }
