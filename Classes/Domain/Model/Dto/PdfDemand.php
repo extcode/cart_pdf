@@ -13,20 +13,25 @@ namespace Extcode\CartPdf\Domain\Model\Dto;
 
 class PdfDemand
 {
+    public const DEFAULT_DEBUG = 0;
+    public const DEFAULT_FONT_SIZE = 8;
+    public const DEFAULT_FOLD_MARKS_ENABLED = false;
+    public const DEFAULT_ADDRESS_FIELD_MARKS_ENABLED = false;
+
     public function __construct(
-        private readonly int $debug = 0,
-        private int $fontSize = 8,
-        private bool $foldMarksEnabled = true,
-        private bool $addressFieldMarksEnabled = true,
+        private readonly int $debug = self::DEFAULT_DEBUG,
+        private int $fontSize = self::DEFAULT_FONT_SIZE,
+        private bool $foldMarksEnabled = self::DEFAULT_FOLD_MARKS_ENABLED,
+        private bool $addressFieldMarksEnabled = self::DEFAULT_ADDRESS_FIELD_MARKS_ENABLED,
     ) {}
 
     public static function createFromSettings(array $settings): self
     {
         return new self(
-            (int)($settings['debug'] ?? 0),
-            (int)($settings['fontSize'] ?? 11),
-            (bool)($settings['enableFoldMarks'] ?? 0),
-            (bool)($settings['enableAddressFieldMarks'] ?? 0)
+            (int)($settings['debug'] ?? self::DEFAULT_DEBUG),
+            (int)($settings['fontSize'] ?? self::DEFAULT_FONT_SIZE),
+            (bool)($settings['enableFoldMarks'] ?? self::DEFAULT_FOLD_MARKS_ENABLED),
+            (bool)($settings['enableAddressFieldMarks'] ?? self::DEFAULT_ADDRESS_FIELD_MARKS_ENABLED)
         );
     }
 
