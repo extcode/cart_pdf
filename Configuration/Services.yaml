@@ -28,4 +28,3 @@ services:
 
   Extcode\CartPdf\Service\FileService:
     public: true
-

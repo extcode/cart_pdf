@@ -1,0 +1,20 @@
+sniffs:
+  - class: Indentation
+    parameters:
+      useSpaces: true
+      indentPerLevel: 4
+      indentConditions: true
+  - class: DeadCode
+  - class: OperatorWhitespace
+  # Values like validator names or paths are repeated on purpose. Moving them
+  # to constants would add them to the public configuration of the extension.
+  - class: RepeatingRValue
+    disabled: true
+  - class: DuplicateAssignment
+  - class: EmptySection
+  - class: NestingConsistency
+    parameters:
+      commonPathPrefixThreshold: 1
+filePatterns:
+  - "*.typoscript"
+  - "*.tsconfig"
