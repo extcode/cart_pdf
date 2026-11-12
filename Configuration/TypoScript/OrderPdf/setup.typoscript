@@ -5,11 +5,10 @@ plugin.tx_cartpdf {
 
         debug = 0
 
-        # font = Helvetica
-        # fontStyle =
+        # Optional: font (e.g. Helvetica) and fontStyle
         fontSize = 10
 
-        # drawColor = 0,0,0
+        # Optional: drawColor (e.g. 0,0,0)
 
         enableFoldMarks = 1
         enableAddressFieldMarks = 1
@@ -125,10 +124,10 @@ plugin.tx_cartpdf {
             }
 
             order {
-                width=170
-                positionX=20
+                width = 170
+                positionX = 20
                 spacingY = 10
-                fontSize=8
+                fontSize = 8
 
                 summary < plugin.tx_cart.settings.showCartAction.summary
             }
