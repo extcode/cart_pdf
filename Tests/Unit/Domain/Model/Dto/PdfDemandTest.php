@@ -32,15 +32,15 @@ final class PdfDemandTest extends UnitTestCase
     }
 
     #[Test]
-    public function getFoldMarksEnabledInitiallyReturnsTrue(): void
+    public function getFoldMarksEnabledInitiallyReturnsFalse(): void
     {
-        self::assertTrue((new PdfDemand())->getFoldMarksEnabled());
+        self::assertFalse((new PdfDemand())->getFoldMarksEnabled());
     }
 
     #[Test]
-    public function getAddressFieldMarksEnabledInitiallyReturnsTrue(): void
+    public function getAddressFieldMarksEnabledInitiallyReturnsFalse(): void
     {
-        self::assertTrue((new PdfDemand())->getAddressFieldMarksEnabled());
+        self::assertFalse((new PdfDemand())->getAddressFieldMarksEnabled());
     }
 
     #[Test]
@@ -65,8 +65,14 @@ final class PdfDemandTest extends UnitTestCase
         $subject = PdfDemand::createFromSettings([]);
 
         self::assertSame(0, $subject->getDebug());
-        self::assertSame(11, $subject->getFontSize());
+        self::assertSame(8, $subject->getFontSize());
         self::assertFalse($subject->getFoldMarksEnabled());
         self::assertFalse($subject->getAddressFieldMarksEnabled());
+    }
+
+    #[Test]
+    public function createFromSettingsWithoutSettingsEqualsDefaultObject(): void
+    {
+        self::assertEquals(new PdfDemand(), PdfDemand::createFromSettings([]));
     }
 }
