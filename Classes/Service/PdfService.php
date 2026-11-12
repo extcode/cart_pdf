@@ -14,6 +14,7 @@ namespace Extcode\CartPdf\Service;
 use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
 use Extcode\CartPdf\Domain\Model\Dto\PdfDemand;
 use TYPO3\CMS\Core\Http\ApplicationType;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManager;
 use TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface;
 
@@ -23,6 +24,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
 
     public function __construct(
         private readonly ConfigurationManager $configurationManager,
+        private readonly ViewFactoryInterface $viewFactory,
     ) {
         if (ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()) {
             $pageId = (int)($GLOBALS['TYPO3_REQUEST']->getQueryParams()['id'] ?? 1);
@@ -49,6 +51,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
         $pdfDemand = PdfDemand::createFromSettings($pdfSettings);
 
         $pdf = TcpdfWrapper::createWithTypeAndSettings(
+            $this->viewFactory,
             $pdfType,
             $this->configuration,
         );
@@ -110,7 +113,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
             foreach ($pdfSettings['letterhead']['html'] as $partName => $partConfig) {
                 $templatePath = '/' . ucfirst($pdfType) . '/Letterhead/';
                 $assignToView = ['orderItem' => $orderItem];
-                $pdf->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
+                $pdf->renderView($templatePath, $partName, $partConfig, $assignToView);
             }
         }
 
@@ -118,7 +121,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
             foreach ($pdfSettings['body']['before']['html'] as $partName => $partConfig) {
                 $templatePath = '/' . ucfirst($pdfType) . '/Body/Before/';
                 $assignToView = ['orderItem' => $orderItem];
-                $pdf->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
+                $pdf->renderView($templatePath, $partName, $partConfig, $assignToView);
             }
         }
 
@@ -128,7 +131,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
             foreach ($pdfSettings['body']['after']['html'] as $partName => $partConfig) {
                 $templatePath = '/' . ucfirst($pdfType) . '/Body/After/';
                 $assignToView = ['orderItem' => $orderItem];
-                $pdf->renderStandaloneView($templatePath, $partName, $partConfig, $assignToView);
+                $pdf->renderView($templatePath, $partName, $partConfig, $assignToView);
             }
         }
 
@@ -183,7 +186,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
 
     private function renderCartHeader(TcpdfWrapper $pdf, OrderItem $orderItem, string $pdfType): string
     {
-        $view = $pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Header');
+        $view = $pdf->createView('/' . ucfirst($pdfType) . '/Order/', 'Header');
         $view->assign('orderItem', $orderItem);
         $header = $view->render();
 
@@ -192,7 +195,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
 
     private function renderCartBody(TcpdfWrapper $pdf, OrderItem $orderItem, string $pdfType): string
     {
-        $view = $pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Product');
+        $view = $pdf->createView('/' . ucfirst($pdfType) . '/Order/', 'Product');
         $view->assign('orderItem', $orderItem);
 
         $bodyOut = '';
@@ -209,7 +212,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
 
     private function renderCartFooter(TcpdfWrapper $pdf, OrderItem $orderItem, string $pdfType): string
     {
-        $view = $pdf->getStandaloneView('/' . ucfirst($pdfType) . '/Order/', 'Footer');
+        $view = $pdf->createView('/' . ucfirst($pdfType) . '/Order/', 'Footer');
         $view->assign('orderSettings', $this->configuration[$pdfType]['body']['order']);
         $view->assign('orderItem', $orderItem);
         $footer = $view->render();

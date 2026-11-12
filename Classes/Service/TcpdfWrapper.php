@@ -13,7 +13,9 @@ namespace Extcode\CartPdf\Service;
 
 use TCPDF;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Fluid\View\StandaloneView;
+use TYPO3\CMS\Core\View\ViewFactoryData;
+use TYPO3\CMS\Core\View\ViewFactoryInterface;
+use TYPO3\CMS\Core\View\ViewInterface;
 
 class TcpdfWrapper extends TCPDF
 {
@@ -21,6 +23,7 @@ class TcpdfWrapper extends TCPDF
     private readonly array $viewSettings;
 
     public function __construct(
+        private readonly ViewFactoryInterface $viewFactory,
         private readonly string $pdfType,
         array $settings,
     ) {
@@ -31,10 +34,12 @@ class TcpdfWrapper extends TCPDF
     }
 
     public static function createWithTypeAndSettings(
+        ViewFactoryInterface $viewFactory,
         string $pdfType,
         array $pdfSettings,
     ): self {
         return new self(
+            $viewFactory,
             $pdfType,
             $pdfSettings,
         );
@@ -57,7 +62,7 @@ class TcpdfWrapper extends TCPDF
 
         if (!empty($this->pdfSettings['header']['html'])) {
             foreach ($this->pdfSettings['header']['html'] as $partName => $partConfig) {
-                $this->renderStandaloneView(
+                $this->renderView(
                     $this->pdfSettings['header']['html'][$partName]['templatePath'],
                     $partName,
                     $partConfig
@@ -90,7 +95,7 @@ class TcpdfWrapper extends TCPDF
 
         if (!empty($this->pdfSettings['footer']['html'])) {
             foreach ($this->pdfSettings['footer']['html'] as $partName => $partConfig) {
-                $this->renderStandaloneView(
+                $this->renderView(
                     $this->pdfSettings['footer']['html'][$partName]['templatePath'],
                     $partName,
                     $partConfig
@@ -111,13 +116,13 @@ class TcpdfWrapper extends TCPDF
         }
     }
 
-    public function renderStandaloneView(
+    public function renderView(
         string $templatePath,
         string $type,
         array $config,
         array $assignToView = []
     ): void {
-        $view = $this->getStandaloneView($templatePath, ucfirst($type));
+        $view = $this->createView($templatePath, ucfirst($type));
 
         if (!empty($config['file'])) {
             $file = GeneralUtility::getFileAbsFileName($config['file']);
@@ -195,23 +200,23 @@ class TcpdfWrapper extends TCPDF
         }
     }
 
-    public function getStandaloneView(
+    public function createView(
         string $templatePath,
         string $templateFileName = 'Default',
         string $format = 'html'
-    ): StandaloneView {
+    ): ViewInterface {
         $templatePathAndFileName = $templatePath . $templateFileName . '.' . $format;
 
-        /** @var StandaloneView $view */
-        $view = GeneralUtility::makeInstance(StandaloneView::class);
-        $view->setFormat($format);
+        $layoutRootPaths = null;
+        $partialRootPaths = null;
+        $completeTemplatePathAndFileName = null;
 
         if (!empty($this->viewSettings)) {
-            $view->setLayoutRootPaths($this->viewSettings['layoutRootPaths']);
-            $view->setPartialRootPaths($this->viewSettings['partialRootPaths']);
+            $layoutRootPaths = $this->viewSettings['layoutRootPaths'];
+            $partialRootPaths = $this->viewSettings['partialRootPaths'];
 
             if ($this->viewSettings['templateRootPaths']) {
-                foreach ($this->viewSettings['templateRootPaths'] as $pathNameKey => $pathNameValue) {
+                foreach ($this->viewSettings['templateRootPaths'] as $pathNameValue) {
                     $templateRootPath = GeneralUtility::getFileAbsFileName(
                         $pathNameValue
                     );
@@ -219,12 +224,19 @@ class TcpdfWrapper extends TCPDF
                     $completePath = $templateRootPath . $templatePathAndFileName;
 
                     if (file_exists($completePath)) {
-                        $view->setTemplatePathAndFilename($completePath);
+                        $completeTemplatePathAndFileName = $completePath;
                     }
                 }
             }
         }
 
-        return $view;
+        $viewFactoryData = new ViewFactoryData(
+            partialRootPaths: $partialRootPaths,
+            layoutRootPaths: $layoutRootPaths,
+            templatePathAndFilename: $completeTemplatePathAndFileName,
+            format: $format,
+        );
+
+        return $this->viewFactory->create($viewFactoryData);
     }
 }
