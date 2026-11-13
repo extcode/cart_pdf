@@ -133,10 +133,8 @@ let
     name = "project-test-unit";
     runtimeInputs = [
       php
-      projectInstall
     ];
     text = ''
-      project-install
       "$PROJECT_ROOT/Build/Scripts/phpunit.sh" unit
     '';
   };
@@ -145,10 +143,8 @@ let
     name = "project-test-functional";
     runtimeInputs = [
       php
-      projectInstall
     ];
     text = ''
-      project-install
       "$PROJECT_ROOT/Build/Scripts/phpunit.sh" functional
     '';
   };
