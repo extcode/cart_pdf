@@ -231,6 +231,14 @@ final class PdfServiceTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function deliveryNoteContainsProductTableHeader(): void
+    {
+        $text = $this->extractText($this->renderDocument('delivery'));
+
+        self::assertStringContainsString('Count Product', $text);
+    }
+
+    #[Test]
     public function deliveryNoteContainsBillingAddressAndProductsWithoutPrices(): void
     {
         $text = $this->extractText($this->renderDocument('delivery'));
