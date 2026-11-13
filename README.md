@@ -7,24 +7,11 @@ CartPdf allows you to generate attractive PDFs. Whether order confirmations, inv
 or even your own types. The EventListener integrates itself into the ordering process so that the
 generated files are sent as email attachments.
 
+Read the [extension documentation](Documentation/Index.rst).
+
 ## 2. Installation
 
-### 2.1 Installation
-
-#### Installation using Composer
-
-The recommended way to install the extension is by using Composer. In your Composer based TYPO3 project root, just do `composer require extcode/cart-pdf`.
-
-#### Installation as extension from TYPO3 Extension Repository (TER)
-
-An installation from TER is not possible because tecnickcom/tcpdf will be installed as a dependency.
-Installing  external packages is not provided by the extension manager.
-
-### 2.2 Update and Upgrade
-
-**Attention:** Before updating to a new minor version or upgrading to a new major version, be sure to check the
-changelog section in the documentation.
-Sometimes minor versions also result in minor adjustments to own templates or configurations.
+Please have a look into the [installation chapter of the documentation](Documentation/Administrator/Installation/Index.rst).
 
 ## 3. Versions
 
@@ -38,7 +25,11 @@ we are happy to offer paid services.
 
 ### 3.2 Changelog
 
-Please have a look into the [official extension documentation in changelog chapter](https://docs.typo3.org/p/extcode/cart-pdf/main/en-us/Changelog/Index.html)
+Please have a look into the [changelog chapter of the documentation](Documentation/Changelog/Index.rst)
+
+**Attention:** Before updating to a new minor version or upgrading to a new major version, be sure to check the
+changelog section in the documentation.
+Sometimes minor versions also result in minor adjustments to own templates or configurations.
 
 ## 4. Sponsoring
 
