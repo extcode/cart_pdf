@@ -1,62 +1,38 @@
-# CartPDF
+# Cart PDF
 
-## Description
+## 1. Description
 
 Cart is a small but powerful extension which "solely" adds a shopping cart to your TYPO3 installation.
 CartPdf allows you to generate attractive PDFs. Whether order confirmations, invoices, delivery notes,
 or even your own types. The EventListener integrates itself into the ordering process so that the
 generated files are sent as email attachments.
 
+Read the [extension documentation](Documentation/Index.rst).
+
 ## 2. Installation
 
-### 2.1 Installation
+Please have a look into the [installation chapter of the documentation](Documentation/Administrator/Installation/Index.rst).
 
-#### Installation using Composer
+## 3. Versions
 
-The recommended way to install the extension is by using [Composer][2]. In your Composer based TYPO3 project root, just do `composer require extcode/cart-pdf`.
+### 3.1 Compatibility and supported versions
 
-#### Installation as extension from TYPO3 Extension Repository (TER)
-
-An installation from TER is not possible because tecnickcom/tcpdf will be installed as a dependency.
-Installing  external packages is not provided by the extension manager.
-
-### 2.2 Update and Upgrade
-
-**Attention**, Before updating to a new minor version or upgrading to a new major version, be sure to check the
-changelog section in the documentation.
-Sometimes minor versions also result in minor adjustments to own templates or configurations.
-
-## 3. Administration
-
-## 3.1 Compatibility and supported Versions
-
-| Cart Pdf | TYPO3 | PHP       | Support/Development                  |
-|----------|-------|-----------|--------------------------------------|
-| 8.x.x    | 13.4  | 8.2 - 8.4 | Features, Bugfixes, Security Updates |
-| 7.x.x    | 12.4  | 8.1 - 8.4 | Bugfixes, Security Updates           |
-| 5.x.x    | 10.4  | 7.2 - 7.4 |                                      |
-| 4.x.x    | 9.5   | 7.2 - 7.4 |                                      |
-| 3.x.x    | 8.7   | 7.0 - 7.4 |                                      |
+The compatibility with TYPO3 and PHP and the support status of all versions are listed in the
+[supported versions chapter of the documentation](Documentation/Introduction/SupportedVersions/Index.rst).
 
 If you need extended support for features and bug fixes outside of the currently supported versions,
 we are happy to offer paid services.
 
-### 3.2. Changelog
+### 3.2 Changelog
 
-Please have a look into the [official extension documentation in changelog chapter](https://docs.typo3.org/p/extcode/cart-pdf/main/en-us/Changelog/Index.html)
+Please have a look into the [changelog chapter of the documentation](Documentation/Changelog/Index.rst)
 
-### 3.3. Release Management
-
-News uses **semantic versioning** which basically means for you, that
-- **bugfix updates** (e.g. 1.0.0 => 1.0.1) just includes small bugfixes or security relevant stuff without breaking changes.
-- **minor updates** (e.g. 1.0.0 => 1.1.0) includes new features and smaller tasks without breaking changes.
-- **major updates** (e.g. 1.0.0 => 2.0.0) breaking changes wich can be refactorings, features or bugfixes.
+**Attention:** Before updating to a new minor version or upgrading to a new major version, be sure to check the
+changelog section in the documentation.
+Sometimes minor versions also result in minor adjustments to own templates or configurations.
 
 ## 4. Sponsoring
 
 * Ask for an invoice.
 * [GitHub Sponsors](https://github.com/sponsors/extcode)
 * [PayPal.Me](https://paypal.me/extcart)
-
-[1]: https://docs.typo3.org/typo3cms/extensions/cart_pdf/
-[2]: https://getcomposer.org/
