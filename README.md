@@ -1,6 +1,6 @@
-# CartPDF
+# Cart PDF
 
-## Description
+## 1. Description
 
 Cart is a small but powerful extension which "solely" adds a shopping cart to your TYPO3 installation.
 CartPdf allows you to generate attractive PDFs. Whether order confirmations, invoices, delivery notes,
