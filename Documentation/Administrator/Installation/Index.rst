@@ -12,7 +12,7 @@ Installation using composer
 The recommended way to install the extension is by using `Composer <https://getcomposer.org/>`_.
 In your composer based TYPO3 project root, just do
 
-`composer require extcode/cart-pdf`.
+``composer require extcode/cart-pdf``.
 
 Installation from TYPO3 Extension Repository (TER)
 --------------------------------------------------
