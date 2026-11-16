@@ -11,8 +11,8 @@
                interlink-shortcode="extcode/cart-pdf"
     />
     <project title="Cart Pdf"
-             release="8.0.1"
-             version="8.0"
+             release="9.0.0"
+             version="9.0"
              copyright="2018 - 2026"
     />
     <inventory id="t3tsref" url="https://docs.typo3.org/typo3cms/TyposcriptReference/"/>
