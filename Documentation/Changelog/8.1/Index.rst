@@ -18,3 +18,13 @@ Features
    :glob:
 
    Feature-*
+
+Important
+^^^^^^^^^
+
+.. toctree::
+   :maxdepth: 1
+   :titlesonly:
+   :glob:
+
+   Important-*

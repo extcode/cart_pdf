@@ -25,9 +25,8 @@ following variables:
 The label is provided by the new language file
 ``EXT:cart_pdf/Resources/Private/Language/locallang.xlf``.
 
-The feature is disabled by default, so the documents do not change with
-this release. Enable it per document, independently of the subtotal, e.g.
-for the invoice:
+The feature is disabled by default. Enable it per document, independently of
+the subtotal, e.g. for the invoice:
 
 .. code-block:: typoscript
 

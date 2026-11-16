@@ -180,12 +180,6 @@ readonly class PdfService implements DocumentRenderServiceInterface
         $rowsOut = $this->renderCartRows($pdf, $orderItem, $pdfType);
         $footerOut = $this->renderCartFooter($pdf, $orderItem, $pdfType);
 
-        if (empty($config['pageSubtotal']) && empty($config['pageBroughtForward'])) {
-            $content = $this->buildCartTable($headerOut, '', $rowsOut, $footerOut);
-            $pdf->writeHtmlCellWithConfig($content, $config);
-            return;
-        }
-
         $this->renderCartPaginated($pdf, $orderItem, $pdfType, $config, $headerOut, $rowsOut, $footerOut);
     }
 
@@ -195,6 +189,9 @@ readonly class PdfService implements DocumentRenderServiceInterface
      * last one with the summary of the order (Order/Footer.html). Each table
      * but the first starts with the amount brought forward from the previous
      * page (Order/BroughtForward.html, option pageBroughtForward).
+     *
+     * The summary is never split and never stands alone: if it does not fit
+     * below the last product, this product moves to the next page as well.
      *
      * The number of products that fit on a page is determined by writing the
      * table on trial. The search starts with an estimate on the first two
