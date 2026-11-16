@@ -133,6 +133,11 @@ plugin.tx_cartpdf {
                 # Order/Subtotal.html, e.g. to show the subtotal.
                 pageSubtotal = 1
 
+                # Starts the product table on each page but the first one with
+                # Order/BroughtForward.html, e.g. to show the amount brought
+                # forward from the previous page.
+                pageBroughtForward = 1
+
                 summary < plugin.tx_cart.settings.showCartAction.summary
             }
 
