@@ -116,11 +116,17 @@ class TcpdfWrapper extends TCPDF
         }
     }
 
+    /**
+     * @param bool $keepOnOnePage starts the content on a new page if it does
+     *                            not fit on the rest of the current page, see
+     *                            writeHtmlCellWithConfigOnOnePage()
+     */
     public function renderView(
         string $templatePath,
         string $type,
         array $config,
-        array $assignToView = []
+        array $assignToView = [],
+        bool $keepOnOnePage = false
     ): void {
         $view = $this->createView($templatePath, ucfirst($type));
 
@@ -149,6 +155,34 @@ class TcpdfWrapper extends TCPDF
         $content = (string)$view->render();
         $content = trim(preg_replace('~[\\n]+~', '', $content));
 
+        if ($keepOnOnePage) {
+            $this->writeHtmlCellWithConfigOnOnePage($content, $config);
+            return;
+        }
+
+        $this->writeHtmlCellWithConfig($content, $config);
+    }
+
+    /**
+     * Writes the content on one page: if it does not fit on the rest of the
+     * current page, it starts on a new page. The vertical spacing is left out
+     * there.
+     *
+     * Content with a fixed position (positionY) and content that does not
+     * fit on an empty page either are written as they are.
+     */
+    public function writeHtmlCellWithConfigOnOnePage(string $content, array $config): void
+    {
+        $hasFixedPosition = isset($config['positionY']) && is_numeric($config['positionY']);
+        $isEmptyPage = $this->GetY() <= $this->tMargin;
+
+        if ($hasFixedPosition || $isEmptyPage || $this->measureHtmlCellWithConfig($content, $config) !== null) {
+            $this->writeHtmlCellWithConfig($content, $config);
+            return;
+        }
+
+        unset($config['spacingY']);
+        $this->AddPage();
         $this->writeHtmlCellWithConfig($content, $config);
     }
 
