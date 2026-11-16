@@ -32,6 +32,11 @@ final class PdfServiceTest extends FunctionalTestCase
 {
     use TestingFramework;
 
+    private const BASE_GROSS_BY_SKU = [
+        'CHAIR-ÄGÄIS' => 998.00,
+        'CABLE-USB-C' => 19.99,
+    ];
+
     protected array $testExtensionsToLoad = [
         'extcode/cart',
         'extcode/cart-pdf',
@@ -176,6 +181,165 @@ final class PdfServiceTest extends FunctionalTestCase
     }
 
     #[Test]
+    public function invoiceWithManyProductsShowsSubtotalAndBroughtForwardOnEachPage(): void
+    {
+        $this->importPHPDataSet(__DIR__ . '/../Fixtures/OrderItemWithManyProducts.php');
+
+        $grossBySku = self::BASE_GROSS_BY_SKU;
+        for ($i = 3; $i <= 60; $i++) {
+            $grossBySku[sprintf('BULK-%03d', $i)] = 1.00;
+        }
+
+        $document = $this->parsePdf($this->renderDocument('invoice', 'with-many-products'));
+
+        self::assertGreaterThan(1, count($document->getPages()));
+        $this->assertEachProductOncePerPage($document, $grossBySku, true, true);
+    }
+
+    /**
+     * Some products wrap over several lines, so the number of products that
+     * fit on the previous page does not fit on the next one.
+     */
+    #[Test]
+    public function invoiceWithProductsOfDifferentHeightShowsSubtotalAndBroughtForwardOnEachPage(): void
+    {
+        $this->importPHPDataSet(__DIR__ . '/../Fixtures/OrderItemWithProductsOfDifferentHeight.php');
+
+        $grossBySku = self::BASE_GROSS_BY_SKU;
+        for ($i = 3; $i <= 80; $i++) {
+            $grossBySku[sprintf('BULK-%03d', $i)] = (float)$i;
+        }
+
+        $document = $this->parsePdf($this->renderDocument('invoice', 'with-products-of-different-height'));
+
+        self::assertGreaterThan(2, count($document->getPages()));
+        $this->assertEachProductOncePerPage($document, $grossBySku, true, true);
+    }
+
+    #[Test]
+    public function invoiceWithManyProductsWithoutPageSubtotalShowsOnlyBroughtForward(): void
+    {
+        $this->importPHPDataSet(__DIR__ . '/../Fixtures/OrderItemWithManyProducts.php');
+        $this->addTypoScript([
+            'plugin.tx_cartpdf.invoicePdf.body.order.pageSubtotal = 0',
+            'module.tx_cartpdf.invoicePdf.body.order.pageSubtotal = 0',
+        ]);
+
+        $grossBySku = self::BASE_GROSS_BY_SKU;
+        for ($i = 3; $i <= 60; $i++) {
+            $grossBySku[sprintf('BULK-%03d', $i)] = 1.00;
+        }
+
+        $document = $this->parsePdf($this->renderDocument('invoice', 'with-many-products-without-page-subtotal'));
+
+        self::assertGreaterThan(1, count($document->getPages()));
+        $this->assertEachProductOncePerPage($document, $grossBySku, false, true);
+    }
+
+    #[Test]
+    public function invoiceWithManyProductsWithoutPageSubtotalAndBroughtForwardHasNeither(): void
+    {
+        $this->importPHPDataSet(__DIR__ . '/../Fixtures/OrderItemWithManyProducts.php');
+        $this->addTypoScript([
+            'plugin.tx_cartpdf.invoicePdf.body.order.pageSubtotal = 0',
+            'plugin.tx_cartpdf.invoicePdf.body.order.pageBroughtForward = 0',
+            'module.tx_cartpdf.invoicePdf.body.order.pageSubtotal = 0',
+            'module.tx_cartpdf.invoicePdf.body.order.pageBroughtForward = 0',
+        ]);
+
+        $document = $this->parsePdf($this->renderDocument('invoice', 'with-many-products-without-page-subtotal-and-brought-forward'));
+        $text = $this->normalizeText($document->getText());
+
+        self::assertGreaterThan(1, count($document->getPages()));
+        self::assertStringNotContainsString('Subtotal', $text);
+        self::assertStringNotContainsString('Brought forward', $text);
+        for ($i = 3; $i <= 60; $i++) {
+            self::assertSame(1, substr_count($text, sprintf('BULK-%03d', $i)));
+        }
+    }
+
+    /**
+     * Checks the pages up to the one with the summary. The parts after the
+     * product table (e.g. the greetings) may continue on a further page.
+     *
+     * @param array<string, float> $grossBySku
+     */
+    private function assertEachProductOncePerPage(
+        Document $document,
+        array $grossBySku,
+        bool $withSubtotal,
+        bool $withBroughtForward,
+    ): void {
+        $pages = $document->getPages();
+        $lastPageIndex = null;
+        foreach ($pages as $index => $page) {
+            if (str_contains($this->normalizeText($page->getText()), 'Total Price (gross)')) {
+                $lastPageIndex = $index;
+                break;
+            }
+        }
+        self::assertNotNull($lastPageIndex, 'The document has the summary.');
+
+        $foundSkus = [];
+        $subtotal = 0.0;
+
+        foreach (array_slice($pages, 0, $lastPageIndex + 1) as $index => $page) {
+            $text = $this->normalizeText($page->getText());
+            $pageNumber = $index + 1;
+
+            preg_match_all('/CHAIR-ÄGÄIS|CABLE-USB-C|BULK-\d{3}/u', $text, $matches);
+            self::assertNotEmpty($matches[0], sprintf('Page %d has products.', $pageNumber));
+            self::assertStringContainsString(
+                'Stock Keeping Unit Product Price (gross) Count Gross',
+                $text,
+                sprintf('Page %d has the table header.', $pageNumber)
+            );
+
+            if ($index === 0 || !$withBroughtForward) {
+                self::assertStringNotContainsString('Brought forward', $text, sprintf('Page %d has no amount brought forward.', $pageNumber));
+            } else {
+                $expected = sprintf('Brought forward from page %d %s €', $pageNumber - 1, $this->formatAmount($subtotal));
+                self::assertStringContainsString($expected, $text, sprintf('Page %d starts with the amount brought forward.', $pageNumber));
+                self::assertLessThan(
+                    strpos($text, $matches[0][0]),
+                    strpos($text, $expected),
+                    sprintf('The amount brought forward on page %d precedes the first product of the page.', $pageNumber)
+                );
+            }
+
+            foreach ($matches[0] as $sku) {
+                $foundSkus[] = $sku;
+                $subtotal += $grossBySku[$sku];
+            }
+
+            if ($index === $lastPageIndex || !$withSubtotal) {
+                self::assertStringNotContainsString('Subtotal', $text, sprintf('Page %d has no subtotal.', $pageNumber));
+            } else {
+                $expected = sprintf('Subtotal %s €', $this->formatAmount($subtotal));
+                self::assertStringContainsString($expected, $text, sprintf('Page %d ends with the subtotal.', $pageNumber));
+                self::assertGreaterThan(
+                    strrpos($text, (string)end($matches[0])),
+                    strpos($text, $expected),
+                    sprintf('The subtotal on page %d follows the last product of the page.', $pageNumber)
+                );
+            }
+
+            if ($index === $lastPageIndex) {
+                self::assertStringContainsString('Total Price (gross)', $text, 'The last page has the summary.');
+            } else {
+                self::assertStringNotContainsString('Total Price (gross)', $text, sprintf('Page %d has no summary.', $pageNumber));
+            }
+        }
+
+        self::assertSame(array_keys($grossBySku), $foundSkus, 'Each product is shown once and in order.');
+    }
+
+    private function formatAmount(float $amount): string
+    {
+        return number_format($amount, 2, ',', '.');
+    }
+
+    #[Test]
     public function orderIsAValidPdfWithOnePage(): void
     {
         $pdfContent = $this->renderDocument('order');
@@ -207,7 +371,7 @@ final class PdfServiceTest extends FunctionalTestCase
     }
 
     /**
-     * The template DeliveryPdf/Order/Footer.html is empty. Rendering it
+     * The template DeliveryPdf/Order/Summary.html is empty. Rendering it
      * must not break the document.
      *
      * @see https://github.com/extcode/cart_pdf/issues/47
@@ -250,11 +414,11 @@ final class PdfServiceTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function deliveryNoteWithEmptyOrderHeaderAndFooterTemplatesContainsProducts(): void
+    public function deliveryNoteWithEmptyOrderHeaderAndSummaryTemplatesContainsProducts(): void
     {
-        $this->addTemplateRootPath('EXT:cart_pdf/Tests/Functional/Fixtures/Templates/EmptyOrderHeaderAndFooter/');
+        $this->addTemplateRootPath('EXT:cart_pdf/Tests/Functional/Fixtures/Templates/EmptyOrderHeaderAndSummary/');
 
-        $pdfContent = $this->renderDocument('delivery', 'with-empty-order-header-and-footer');
+        $pdfContent = $this->renderDocument('delivery', 'with-empty-order-header-and-summary');
         $text = $this->extractText($pdfContent);
 
         self::assertStringStartsWith('%PDF-', $pdfContent);
@@ -265,14 +429,20 @@ final class PdfServiceTest extends FunctionalTestCase
 
     private function addTemplateRootPath(string $templateRootPath): void
     {
+        $this->addTypoScript([
+            'plugin.tx_cartpdf.view.templateRootPaths.10 = ' . $templateRootPath,
+            'module.tx_cartpdf.view.templateRootPaths.10 = ' . $templateRootPath,
+        ]);
+    }
+
+    /**
+     * @param list<string> $lines
+     */
+    private function addTypoScript(array $lines): void
+    {
         $this->getConnectionPool()->getConnectionForTable('sys_template')->update(
             'sys_template',
-            [
-                'config' => implode(PHP_EOL, [
-                    'plugin.tx_cartpdf.view.templateRootPaths.10 = ' . $templateRootPath,
-                    'module.tx_cartpdf.view.templateRootPaths.10 = ' . $templateRootPath,
-                ]),
-            ],
+            ['config' => implode(PHP_EOL, $lines)],
             ['uid' => 1]
         );
     }

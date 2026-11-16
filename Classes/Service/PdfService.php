@@ -12,6 +12,7 @@ namespace Extcode\CartPdf\Service;
  */
 
 use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
+use Extcode\Cart\Domain\Model\Order\Product;
 use Extcode\CartPdf\Domain\Model\Dto\PdfDemand;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -261,12 +262,187 @@ readonly class PdfService implements DocumentRenderServiceInterface
         }
 
         $headerOut = $this->renderCartHeader($orderItem, $pdfType);
-        $bodyOut = $this->renderCartBody($orderItem, $pdfType);
-        $footerOut = $this->renderCartFooter($orderItem, $pdfType);
+        $rowsOut = $this->renderCartRows($orderItem, $pdfType);
+        $summaryOut = $this->renderCartSummary($orderItem, $pdfType);
 
-        $content = '<table cellpadding="3">' . $headerOut . $bodyOut . $footerOut . '</table>';
+        if (empty($config['pageSubtotal']) && empty($config['pageBroughtForward'])) {
+            $content = $this->buildCartTable($headerOut, '', $rowsOut, $summaryOut);
+            $pdf->writeHtmlCellWithConfig($content, $config);
+            return;
+        }
 
-        $pdf->writeHtmlCellWithConfig($content, $config);
+        $this->renderCartPaginated($pdf, $orderItem, $pdfType, $config, $headerOut, $rowsOut, $summaryOut);
+    }
+
+    /**
+     * Splits the products into one table per page. Each table but the last
+     * ends with the subtotal (Order/Subtotal.html, option pageSubtotal), the
+     * last one with the summary of the order (Order/Summary.html). Each table
+     * but the first starts with the amount brought forward from the previous
+     * page (Order/BroughtForward.html, option pageBroughtForward).
+     *
+     * The number of products that fit on a page is determined by writing the
+     * table on trial. The search starts with an estimate on the first two
+     * pages and with the number of the previous page on all further pages,
+     * and counts up or down from there. Products can differ in height, so the
+     * number of the previous page is not guaranteed to fit.
+     *
+     * @param list<string> $rowsOut
+     */
+    private function renderCartPaginated(
+        TcpdfWrapper $pdf,
+        OrderItem $orderItem,
+        string $pdfType,
+        array $config,
+        string $headerOut,
+        array $rowsOut,
+        string $summaryOut,
+    ): void {
+        $products = array_values($orderItem->getProducts()->toArray());
+        $total = count($rowsOut);
+        $withSubtotal = !empty($config['pageSubtotal']);
+        $withBroughtForward = !empty($config['pageBroughtForward']);
+
+        $continuationConfig = $config;
+        unset($continuationConfig['spacingY'], $continuationConfig['positionY']);
+
+        $start = 0;
+        $previousCount = null;
+        $previousPage = null;
+        $isFreshPage = false;
+
+        while (true) {
+            $remaining = $total - $start;
+
+            $openingOut = '';
+            if ($withBroughtForward && $start > 0) {
+                $openingOut = $this->renderCartPageRow(
+                    'BroughtForward',
+                    $orderItem,
+                    $pdfType,
+                    array_slice($products, 0, $start),
+                    ['previousPage' => $previousPage]
+                );
+            }
+
+            $finalTable = $this->buildCartTable($headerOut, $openingOut, array_slice($rowsOut, $start), $summaryOut);
+            if ($remaining === 0) {
+                $pdf->writeHtmlCellWithConfig($finalTable, $config);
+                return;
+            }
+
+            $pageTable = fn(int $count): string => $this->buildCartTable(
+                $headerOut,
+                $openingOut,
+                array_slice($rowsOut, $start, $count),
+                $withSubtotal
+                    ? $this->renderCartPageRow('Subtotal', $orderItem, $pdfType, array_slice($products, 0, $start + $count))
+                    : ''
+            );
+            $measure = fn(int $count): ?float => $pdf->measureHtmlCellWithConfig($pageTable($count), $config);
+
+            $guess = $previousCount ?? $this->estimateCartRowCount($pdf, $measure, $remaining);
+            $count = $this->countFittingCartRows($measure, $remaining, $guess);
+
+            if ($count === $remaining) {
+                if ($pdf->measureHtmlCellWithConfig($finalTable, $config) !== null) {
+                    $pdf->writeHtmlCellWithConfig($finalTable, $config);
+                    return;
+                }
+                // The summary does not fit. Move the last product to the next
+                // page, so the summary does not stand alone.
+                $count--;
+            }
+
+            if ($count === 0) {
+                if (!$isFreshPage) {
+                    $pdf->AddPage();
+                    $isFreshPage = true;
+                    $config = $continuationConfig;
+                    continue;
+                }
+                // Not even one product fits on an empty page. Write it anyway
+                // and let it break across pages.
+                if ($remaining === 1) {
+                    $pdf->writeHtmlCellWithConfig($finalTable, $config);
+                    return;
+                }
+                $count = 1;
+            }
+
+            $pdf->writeHtmlCellWithConfig($pageTable($count), $config);
+
+            $previousCount = $isFreshPage ? $count : null;
+            $previousPage = $pdf->getPage();
+            $start += $count;
+
+            $pdf->AddPage();
+            $isFreshPage = true;
+            $config = $continuationConfig;
+        }
+    }
+
+    /**
+     * Estimates the number of products that fit on the current page from the
+     * height of a table with one and with two products.
+     *
+     * @param callable(int): ?float $measure
+     */
+    private function estimateCartRowCount(TcpdfWrapper $pdf, callable $measure, int $max): int
+    {
+        if ($max < 2) {
+            return 1;
+        }
+
+        $heightOne = $measure(1);
+        $heightTwo = $measure(2);
+        if ($heightOne === null || $heightTwo === null) {
+            return 1;
+        }
+
+        $rowHeight = $heightTwo - $heightOne;
+        if ($rowHeight <= 0) {
+            return $max;
+        }
+
+        $freeHeight = $pdf->getPageHeight() - $pdf->getBreakMargin() - $pdf->GetY();
+        $tableHeight = $heightOne - $rowHeight;
+
+        return max(1, min($max, (int)floor(($freeHeight - $tableHeight) / $rowHeight)));
+    }
+
+    /**
+     * Returns the highest number of products (at most $max) whose table fits
+     * on the current page, or 0 if not even one product fits.
+     *
+     * @param callable(int): ?float $measure
+     */
+    private function countFittingCartRows(callable $measure, int $max, int $guess): int
+    {
+        $count = max(1, min($max, $guess));
+
+        if ($measure($count) !== null) {
+            while ($count < $max && $measure($count + 1) !== null) {
+                $count++;
+            }
+            return $count;
+        }
+
+        while (--$count > 0) {
+            if ($measure($count) !== null) {
+                return $count;
+            }
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param list<string> $rowsOut
+     */
+    private function buildCartTable(string $headerOut, string $openingOut, array $rowsOut, string $closingOut): string
+    {
+        return '<table cellpadding="3">' . $headerOut . $openingOut . implode('', $rowsOut) . $closingOut . '</table>';
     }
 
     private function renderCartHeader(OrderItem $orderItem, string $pdfType): string
@@ -278,30 +454,66 @@ readonly class PdfService implements DocumentRenderServiceInterface
         return trim(preg_replace('~[\\n]+~', '', $header));
     }
 
-    private function renderCartBody(OrderItem $orderItem, string $pdfType): string
+    /**
+     * @return list<string>
+     */
+    private function renderCartRows(OrderItem $orderItem, string $pdfType): array
     {
         $view = $this->createView();
         $view->assign('orderItem', $orderItem);
 
-        $bodyOut = '';
+        $rowsOut = [];
 
         foreach ($orderItem->getProducts() as $product) {
             $view->assign('product', $product);
-            $product = $view->render('/' . ucfirst($pdfType) . '/Order/Product');
+            $rowOut = $view->render('/' . ucfirst($pdfType) . '/Order/Product');
 
-            $bodyOut .= trim(preg_replace('~[\\n]+~', '', $product));
+            $rowsOut[] = trim(preg_replace('~[\\n]+~', '', $rowOut));
         }
 
-        return $bodyOut;
+        return $rowsOut;
     }
 
-    private function renderCartFooter(OrderItem $orderItem, string $pdfType): string
+    /**
+     * Renders a row of the product table with the sum of the given products:
+     * Order/Subtotal.html at the end of each page but the last one, and
+     * Order/BroughtForward.html at the start of each page but the first one.
+     *
+     * @param 'Subtotal'|'BroughtForward' $templateName
+     * @param list<Product> $products the products up to this row
+     * @param array<string, mixed> $variables
+     */
+    private function renderCartPageRow(
+        string $templateName,
+        OrderItem $orderItem,
+        string $pdfType,
+        array $products,
+        array $variables = [],
+    ): string {
+        $subtotal = ['net' => 0.0, 'gross' => 0.0];
+        foreach ($products as $product) {
+            $subtotal['net'] += $product->getNet();
+            $subtotal['gross'] += $product->getGross();
+        }
+
+        $view = $this->createView();
+        $view->assign('orderSettings', $this->configuration[$pdfType]['body']['order']);
+        $view->assign('orderItem', $orderItem);
+        $view->assign('products', $products);
+        $view->assign('subtotal', $subtotal);
+        $view->assignMultiple($variables);
+        $rowOut = $view->render('/' . ucfirst($pdfType) . '/Order/' . $templateName);
+
+        return trim(preg_replace('~[\\n]+~', '', $rowOut));
+    }
+
+    private function renderCartSummary(OrderItem $orderItem, string $pdfType): string
     {
         $view = $this->createView();
         $view->assign('orderSettings', $this->configuration[$pdfType]['body']['order']);
         $view->assign('orderItem', $orderItem);
-        $footer = $view->render('/' . ucfirst($pdfType) . '/Order/Footer');
+        $summaryOut = $view->render('/' . ucfirst($pdfType) . '/Order/Summary');
 
-        return trim(preg_replace('~[\\n]+~', '', $footer));
+        return trim(preg_replace('~[\\n]+~', '', $summaryOut));
     }
 }
