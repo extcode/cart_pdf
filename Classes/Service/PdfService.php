@@ -122,7 +122,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
             foreach ($pdfSettings['body']['before']['html'] as $partName => $partConfig) {
                 $templatePath = '/' . ucfirst($pdfType) . '/Body/Before/';
                 $assignToView = ['orderItem' => $orderItem];
-                $pdf->renderView($templatePath, $partName, $partConfig, $assignToView);
+                $pdf->renderView($templatePath, $partName, $partConfig, $assignToView, keepOnOnePage: true);
             }
         }
 
@@ -132,7 +132,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
             foreach ($pdfSettings['body']['after']['html'] as $partName => $partConfig) {
                 $templatePath = '/' . ucfirst($pdfType) . '/Body/After/';
                 $assignToView = ['orderItem' => $orderItem];
-                $pdf->renderView($templatePath, $partName, $partConfig, $assignToView);
+                $pdf->renderView($templatePath, $partName, $partConfig, $assignToView, keepOnOnePage: true);
             }
         }
 
