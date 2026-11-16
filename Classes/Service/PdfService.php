@@ -206,7 +206,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
                 $templatePath = '/' . ucfirst($pdfType) . '/Body/Before/';
                 $assignToView = ['orderItem' => $orderItem];
                 $content = $this->renderView($templatePath, $partName, $partConfig, $assignToView);
-                $pdf->writeHtmlCellWithConfig($content, $partConfig);
+                $pdf->writeHtmlCellWithConfigOnOnePage($content, $partConfig);
             }
         }
 
@@ -217,7 +217,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
                 $templatePath = '/' . ucfirst($pdfType) . '/Body/After/';
                 $assignToView = ['orderItem' => $orderItem];
                 $content = $this->renderView($templatePath, $partName, $partConfig, $assignToView);
-                $pdf->writeHtmlCellWithConfig($content, $partConfig);
+                $pdf->writeHtmlCellWithConfigOnOnePage($content, $partConfig);
             }
         }
 
