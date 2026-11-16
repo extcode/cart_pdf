@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Extcode\CartPdf\Tests\Functional\Integration;
+namespace Extcode\CartPdf\Tests\Functional\EventListener\Document;
 
 /*
  * This file is part of the package extcode/cart-pdf.
@@ -12,21 +12,26 @@ namespace Extcode\CartPdf\Tests\Functional\Integration;
  */
 
 use Codappix\Typo3PhpDatasets\TestingFramework;
-use Extcode\Cart\Controller\Backend\Order\DocumentController;
 use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
 use Extcode\Cart\Domain\Repository\Order\ItemRepository as OrderItemRepository;
+use Extcode\Cart\Event\Document\GenerateDocumentEvent;
+use Extcode\CartPdf\EventListener\Document\GenerateDocument;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;
 
 /**
- * Generates the documents the way the order backend module of cart does
- * and checks that they are written to the storage and attached to the order.
+ * Dispatches the GenerateDocumentEvent the way the order backend module of
+ * cart does and checks that the documents are written to the storage and
+ * attached to the order item.
  */
-final class CartDocumentControllerTest extends FunctionalTestCase
+#[CoversClass(GenerateDocument::class)]
+final class GenerateDocumentTest extends FunctionalTestCase
 {
     use TestingFramework;
 
@@ -39,9 +44,9 @@ final class CartDocumentControllerTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        $this->importPHPDataSet(__DIR__ . '/../Fixtures/BaseDatabase.php');
-        $this->importPHPDataSet(__DIR__ . '/../Fixtures/OrderItem.php');
-        $this->importPHPDataSet(__DIR__ . '/../Fixtures/BackendUserAndFileStorage.php');
+        $this->importPHPDataSet(__DIR__ . '/../../Fixtures/BaseDatabase.php');
+        $this->importPHPDataSet(__DIR__ . '/../../Fixtures/OrderItem.php');
+        $this->importPHPDataSet(__DIR__ . '/../../Fixtures/BackendUserAndFileStorage.php');
         $this->setUpBackendUser(1);
 
         foreach (['order', 'invoice', 'delivery'] as $pdfType) {
@@ -74,9 +79,7 @@ final class CartDocumentControllerTest extends FunctionalTestCase
         $orderItem = $this->get(OrderItemRepository::class)->findByUid(1);
         self::assertInstanceOf(OrderItem::class, $orderItem);
 
-        $documentController = $this->get(DocumentController::class);
-        $generatePdfDocument = new \ReflectionMethod($documentController, 'generatePdfDocument');
-        $generatePdfDocument->invoke($documentController, $orderItem, $pdfType);
+        $this->get(EventDispatcherInterface::class)->dispatch(new GenerateDocumentEvent($orderItem, $pdfType));
 
         $getPdfs = 'get' . ucfirst($pdfType) . 'Pdfs';
         $pdfs = $orderItem->$getPdfs()->toArray();
