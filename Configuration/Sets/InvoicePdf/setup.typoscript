@@ -130,7 +130,7 @@ plugin.tx_cartpdf {
                 fontSize = 8
 
                 # Ends the product table on each page but the last one with
-                # Order/PageFooter.html, e.g. to show the subtotal.
+                # Order/Subtotal.html, e.g. to show the subtotal.
                 pageSubtotal = 1
 
                 summary < plugin.tx_cart.settings.showCartAction.summary

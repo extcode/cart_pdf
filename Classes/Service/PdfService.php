@@ -263,21 +263,21 @@ readonly class PdfService implements DocumentRenderServiceInterface
 
         $headerOut = $this->renderCartHeader($orderItem, $pdfType);
         $rowsOut = $this->renderCartRows($orderItem, $pdfType);
-        $footerOut = $this->renderCartFooter($orderItem, $pdfType);
+        $summaryOut = $this->renderCartSummary($orderItem, $pdfType);
 
         if (empty($config['pageSubtotal'])) {
-            $content = $this->buildCartTable($headerOut, $rowsOut, $footerOut);
+            $content = $this->buildCartTable($headerOut, $rowsOut, $summaryOut);
             $pdf->writeHtmlCellWithConfig($content, $config);
             return;
         }
 
-        $this->renderCartWithPageSubtotal($pdf, $orderItem, $pdfType, $config, $headerOut, $rowsOut, $footerOut);
+        $this->renderCartWithPageSubtotal($pdf, $orderItem, $pdfType, $config, $headerOut, $rowsOut, $summaryOut);
     }
 
     /**
      * Splits the products into one table per page. Each table but the last
-     * ends with the page footer (e.g. the subtotal), the last one with the
-     * footer of the order (the summary).
+     * ends with the subtotal (Order/Subtotal.html), the last one with the
+     * summary of the order (Order/Summary.html).
      *
      * The number of products that fit on a page is determined by writing the
      * table on trial. The search starts with an estimate on the first two
@@ -294,7 +294,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
         array $config,
         string $headerOut,
         array $rowsOut,
-        string $footerOut,
+        string $summaryOut,
     ): void {
         $products = array_values($orderItem->getProducts()->toArray());
         $total = count($rowsOut);
@@ -309,7 +309,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
         while (true) {
             $remaining = $total - $start;
 
-            $finalTable = $this->buildCartTable($headerOut, array_slice($rowsOut, $start), $footerOut);
+            $finalTable = $this->buildCartTable($headerOut, array_slice($rowsOut, $start), $summaryOut);
             if ($remaining === 0) {
                 $pdf->writeHtmlCellWithConfig($finalTable, $config);
                 return;
@@ -318,7 +318,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
             $pageTable = fn(int $count): string => $this->buildCartTable(
                 $headerOut,
                 array_slice($rowsOut, $start, $count),
-                $this->renderCartPageFooter($orderItem, $pdfType, array_slice($products, 0, $start + $count))
+                $this->renderCartSubtotal($orderItem, $pdfType, array_slice($products, 0, $start + $count))
             );
             $measure = fn(int $count): ?float => $pdf->measureHtmlCellWithConfig($pageTable($count), $config);
 
@@ -420,9 +420,9 @@ readonly class PdfService implements DocumentRenderServiceInterface
     /**
      * @param list<string> $rowsOut
      */
-    private function buildCartTable(string $headerOut, array $rowsOut, string $footerOut): string
+    private function buildCartTable(string $headerOut, array $rowsOut, string $closingOut): string
     {
-        return '<table cellpadding="3">' . $headerOut . implode('', $rowsOut) . $footerOut . '</table>';
+        return '<table cellpadding="3">' . $headerOut . implode('', $rowsOut) . $closingOut . '</table>';
     }
 
     private function renderCartHeader(OrderItem $orderItem, string $pdfType): string
@@ -455,11 +455,11 @@ readonly class PdfService implements DocumentRenderServiceInterface
     }
 
     /**
-     * Renders the footer of the product table on each page but the last one.
+     * Renders the end of the product table on each page but the last one.
      *
      * @param list<Product> $products the products on this and the previous pages
      */
-    private function renderCartPageFooter(OrderItem $orderItem, string $pdfType, array $products): string
+    private function renderCartSubtotal(OrderItem $orderItem, string $pdfType, array $products): string
     {
         $subtotal = ['net' => 0.0, 'gross' => 0.0];
         foreach ($products as $product) {
@@ -472,18 +472,18 @@ readonly class PdfService implements DocumentRenderServiceInterface
         $view->assign('orderItem', $orderItem);
         $view->assign('products', $products);
         $view->assign('subtotal', $subtotal);
-        $pageFooter = $view->render('/' . ucfirst($pdfType) . '/Order/PageFooter');
+        $subtotalOut = $view->render('/' . ucfirst($pdfType) . '/Order/Subtotal');
 
-        return trim(preg_replace('~[\\n]+~', '', $pageFooter));
+        return trim(preg_replace('~[\\n]+~', '', $subtotalOut));
     }
 
-    private function renderCartFooter(OrderItem $orderItem, string $pdfType): string
+    private function renderCartSummary(OrderItem $orderItem, string $pdfType): string
     {
         $view = $this->createView();
         $view->assign('orderSettings', $this->configuration[$pdfType]['body']['order']);
         $view->assign('orderItem', $orderItem);
-        $footer = $view->render('/' . ucfirst($pdfType) . '/Order/Footer');
+        $summaryOut = $view->render('/' . ucfirst($pdfType) . '/Order/Summary');
 
-        return trim(preg_replace('~[\\n]+~', '', $footer));
+        return trim(preg_replace('~[\\n]+~', '', $summaryOut));
     }
 }

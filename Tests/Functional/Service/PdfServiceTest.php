@@ -324,7 +324,7 @@ final class PdfServiceTest extends FunctionalTestCase
     }
 
     /**
-     * The template DeliveryPdf/Order/Footer.html is empty. Rendering it
+     * The template DeliveryPdf/Order/Summary.html is empty. Rendering it
      * must not break the document.
      *
      * @see https://github.com/extcode/cart_pdf/issues/47
@@ -367,11 +367,11 @@ final class PdfServiceTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function deliveryNoteWithEmptyOrderHeaderAndFooterTemplatesContainsProducts(): void
+    public function deliveryNoteWithEmptyOrderHeaderAndSummaryTemplatesContainsProducts(): void
     {
-        $this->addTemplateRootPath('EXT:cart_pdf/Tests/Functional/Fixtures/Templates/EmptyOrderHeaderAndFooter/');
+        $this->addTemplateRootPath('EXT:cart_pdf/Tests/Functional/Fixtures/Templates/EmptyOrderHeaderAndSummary/');
 
-        $pdfContent = $this->renderDocument('delivery', 'with-empty-order-header-and-footer');
+        $pdfContent = $this->renderDocument('delivery', 'with-empty-order-header-and-summary');
         $text = $this->extractText($pdfContent);
 
         self::assertStringStartsWith('%PDF-', $pdfContent);
