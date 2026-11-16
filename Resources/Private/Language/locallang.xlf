@@ -6,6 +6,9 @@
             <trans-unit id="tx_cartpdf.order.brought_forward">
                 <source>Brought forward from page %s</source>
             </trans-unit>
+            <trans-unit id="tx_cartpdf.order.subtotal">
+                <source>Subtotal</source>
+            </trans-unit>
         </body>
     </file>
 </xliff>

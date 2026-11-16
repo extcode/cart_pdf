@@ -7,6 +7,10 @@
                 <source>Brought forward from page %s</source>
                 <target>Übertrag von Seite %s</target>
             </trans-unit>
+            <trans-unit id="tx_cartpdf.order.subtotal">
+                <source>Subtotal</source>
+                <target>Zwischensumme</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>
