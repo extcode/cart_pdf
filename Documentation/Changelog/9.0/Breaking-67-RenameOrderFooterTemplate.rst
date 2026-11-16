@@ -1,8 +1,10 @@
 .. include:: ../../Includes.rst.txt
 
-===========================================================
-Breaking: Rename template Order/Footer.html to Summary.html
-===========================================================
+=================================================================
+Breaking: #67 - Rename template Order/Footer.html to Summary.html
+=================================================================
+
+See `Pull Request #67 <https://github.com/extcode/cart_pdf/pull/67>`__
 
 Description
 ===========

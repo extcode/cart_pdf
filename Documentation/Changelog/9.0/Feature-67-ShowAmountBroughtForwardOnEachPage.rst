@@ -1,8 +1,10 @@
 .. include:: ../../Includes.rst.txt
 
-==================================================
-Feature: Show amount brought forward on each page
-==================================================
+=======================================================
+Feature: #67 - Show amount brought forward on each page
+=======================================================
+
+See `Pull Request #67 <https://github.com/extcode/cart_pdf/pull/67>`__
 
 Description
 ===========
