@@ -21,6 +21,10 @@ following variables:
 *  ``products``: the products on this and the previous pages
 *  ``subtotal.net`` and ``subtotal.gross``: the sum of these products
 
+The label is provided by the language file of the extension
+(``EXT:cart_pdf/Resources/Private/Language/locallang.xlf``), as the subtotal
+of a page differs from the subtotal in the summary of the order.
+
 The feature is disabled by default, so the documents do not change with
 this release. Enable it per document, e.g. for the invoice:
 
