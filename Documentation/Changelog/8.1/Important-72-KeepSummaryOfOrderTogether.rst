@@ -1,8 +1,10 @@
 .. include:: ../../Includes.rst.txt
 
-==========================================
-Important: Keep summary of order together
-==========================================
+===============================================
+Important: #72 - Keep summary of order together
+===============================================
+
+See `Pull Request #72 <https://github.com/extcode/cart_pdf/pull/72>`__
 
 Description
 ===========
