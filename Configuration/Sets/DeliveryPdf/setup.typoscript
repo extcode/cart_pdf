@@ -1,15 +1,14 @@
 plugin.tx_cartpdf {
-    invoicePdf {
-        storageRepository = {$plugin.tx_cartpdf.invoicePdf.storageRepository}
-        storageFolder = {$plugin.tx_cartpdf.invoicePdf.storageFolder}
+    deliveryPdf {
+        storageRepository = {$plugin.tx_cartpdf.deliveryPdf.storageRepository}
+        storageFolder = {$plugin.tx_cartpdf.deliveryPdf.storageFolder}
 
         debug = 0
 
-        # font = Helvetica
-        # fontStyle =
+        # Optional: font (e.g. Helvetica) and fontStyle
         fontSize = 10
 
-        # drawColor = 0,0,0
+        # Optional: drawColor (e.g. 0,0,0)
 
         enableFoldMarks = 1
         enableAddressFieldMarks = 1
@@ -21,7 +20,7 @@ plugin.tx_cartpdf {
                     width = 50
                     positionX = 10
                     positionY = 5
-                    templatePath = /InvoicePdf/Header/
+                    templatePath = /DeliveryPdf/Header/
                     file = EXT:cart_pdf/Documentation/Images/cart_pdf_logo.png
                 }
 
@@ -29,7 +28,7 @@ plugin.tx_cartpdf {
                     width = 120
                     positionX = 80
                     positionY = 5
-                    templatePath = /InvoicePdf/Header/
+                    templatePath = /DeliveryPdf/Header/
                     fontSize = 8
                     align = R
                 }
@@ -57,7 +56,7 @@ plugin.tx_cartpdf {
                     height = 35
                     positionX = 15
                     positionY = 265
-                    templatePath = /InvoicePdf/Footer/
+                    templatePath = /DeliveryPdf/Footer/
                     fontSize = 8
                 }
 
@@ -66,7 +65,7 @@ plugin.tx_cartpdf {
                     height = 10
                     positionX = 115
                     positionY = 290
-                    templatePath = /InvoicePdf/Footer/
+                    templatePath = /DeliveryPdf/Footer/
                     fontSize = 8
                     align = R
                 }
@@ -125,10 +124,10 @@ plugin.tx_cartpdf {
             }
 
             order {
-                width=170
-                positionX=20
+                width = 170
+                positionX = 20
                 spacingY = 10
-                fontSize=8
+                fontSize = 8
 
                 summary < plugin.tx_cart.settings.showCartAction.summary
             }
@@ -148,5 +147,5 @@ plugin.tx_cartpdf {
 }
 
 module.tx_cartpdf {
-    invoicePdf < plugin.tx_cartpdf.invoicePdf
+    deliveryPdf < plugin.tx_cartpdf.deliveryPdf
 }

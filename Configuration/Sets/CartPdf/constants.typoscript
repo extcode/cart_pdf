@@ -13,3 +13,4 @@ module.tx_cartpdf {
         layoutRootPath = EXT:cart_pdf/Resources/Private/Layouts/
     }
 }
+
