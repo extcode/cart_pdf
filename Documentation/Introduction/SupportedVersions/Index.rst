@@ -13,7 +13,7 @@ versions are still supported.
 Cart Pdf  TYPO3  PHP        Support/Development
 ========  =====  =========  ====================================
 9.x.x     14.3   8.2 - 8.5  Features, Bugfixes, Security Updates
-8.x.x     13.4   8.2 - 8.4  Bugfixes, Security Updates
+8.x.x     13.4   8.2 - 8.5  Bugfixes, Security Updates
 7.x.x     12.4   8.1 - 8.4  Security Updates
 5.x.x     10.4   7.2 - 7.4
 4.x.x     9.5    7.2 - 7.4
