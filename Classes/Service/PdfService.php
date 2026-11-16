@@ -51,7 +51,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
         $this->viewSettings = is_array($viewSettings) ? $viewSettings : [];
     }
 
-    public function createView(string $format = 'html'): ViewInterface
+    private function createView(string $format = 'html'): ViewInterface
     {
         return $this->viewFactory->create(new ViewFactoryData(
             $this->viewSettings['templateRootPaths'] ?? [],
@@ -63,7 +63,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
         ));
     }
 
-    public function renderView(
+    private function renderView(
         string $templatePath,
         string $type,
         array $config,
