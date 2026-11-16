@@ -11,3 +11,5 @@ Documentation-GENERATED-temp
 
 phpunit.coverage.xml
 phpunit.report.xml
+
+var/
