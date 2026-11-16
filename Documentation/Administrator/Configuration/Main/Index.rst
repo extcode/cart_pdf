@@ -4,10 +4,11 @@
 Main Configuration
 ==================
 
-Preparation: Include static TypoScript
---------------------------------------
+Preparation: Include TypoScript
+-------------------------------
 
 The extension comes with several TypoScript configuration files. One for general configuration an one for each type of PDF.
+They can be included via site sets or as static TypoScript, see :ref:`installation`.
 
 Preparation: Folder for PDF files
 ---------------------------------
