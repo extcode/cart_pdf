@@ -8,13 +8,13 @@ Description
 ===========
 
 If the products of an order do not fit on one page, the product table ends
-on each page but the last one with a page footer, e.g. the subtotal of the
-products on this and the previous pages. The table header is repeated on each
-page as before. The last page ends with the summary of the order.
+on each page but the last one with the subtotal of the products on this and
+the previous pages. The table header is repeated on each page as before. The
+last page ends with the summary of the order.
 
-The page footer is rendered with the new template ``Order/PageFooter.html``
-of the document, e.g. ``InvoicePdf/Order/PageFooter.html``. The template gets
-the following variables:
+The subtotal is rendered with the new template ``Order/Subtotal.html`` of the
+document, e.g. ``InvoicePdf/Order/Subtotal.html``. The template gets the
+following variables:
 
 *  ``orderItem``: the order
 *  ``orderSettings``: the TypoScript settings of ``body.order``
@@ -45,6 +45,11 @@ are taken into account.
 Own templates for ``Order/Header.html``, ``Order/Product.html`` and
 ``Order/Footer.html`` keep working. A ``rowspan`` must not span several
 products, as the products may be spread over two tables.
+
+The subtotal row of the extension matches the product table of the extension:
+five columns, the label spans the first four. If the own templates change the
+number of columns or the style of the table, add an own
+``Order/Subtotal.html`` that matches them, e.g. by adapting the ``colspan``.
 
 With ``body.order.pageSubtotal = 0`` the product table is rendered as one
 table as before.

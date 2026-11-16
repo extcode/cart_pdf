@@ -191,8 +191,8 @@ readonly class PdfService implements DocumentRenderServiceInterface
 
     /**
      * Splits the products into one table per page. Each table but the last
-     * ends with the page footer (e.g. the subtotal), the last one with the
-     * footer of the order (the summary).
+     * ends with the subtotal (Order/Subtotal.html), the last one with the
+     * summary of the order (Order/Footer.html).
      *
      * The number of products that fit on a page is determined by writing the
      * table on trial. The search starts with an estimate on the first two
@@ -233,7 +233,7 @@ readonly class PdfService implements DocumentRenderServiceInterface
             $pageTable = fn(int $count): string => $this->buildCartTable(
                 $headerOut,
                 array_slice($rowsOut, $start, $count),
-                $this->renderCartPageFooter($pdf, $orderItem, $pdfType, array_slice($products, 0, $start + $count))
+                $this->renderCartSubtotal($pdf, $orderItem, $pdfType, array_slice($products, 0, $start + $count))
             );
             $measure = fn(int $count): ?float => $pdf->measureHtmlCellWithConfig($pageTable($count), $config);
 
@@ -370,11 +370,11 @@ readonly class PdfService implements DocumentRenderServiceInterface
     }
 
     /**
-     * Renders the footer of the product table on each page but the last one.
+     * Renders the end of the product table on each page but the last one.
      *
      * @param list<Product> $products the products on this and the previous pages
      */
-    private function renderCartPageFooter(TcpdfWrapper $pdf, OrderItem $orderItem, string $pdfType, array $products): string
+    private function renderCartSubtotal(TcpdfWrapper $pdf, OrderItem $orderItem, string $pdfType, array $products): string
     {
         $subtotal = ['net' => 0.0, 'gross' => 0.0];
         foreach ($products as $product) {
@@ -382,14 +382,14 @@ readonly class PdfService implements DocumentRenderServiceInterface
             $subtotal['gross'] += $product->getGross();
         }
 
-        $view = $pdf->createView('/' . ucfirst($pdfType) . '/Order/', 'PageFooter');
+        $view = $pdf->createView('/' . ucfirst($pdfType) . '/Order/', 'Subtotal');
         $view->assign('orderSettings', $this->configuration[$pdfType]['body']['order']);
         $view->assign('orderItem', $orderItem);
         $view->assign('products', $products);
         $view->assign('subtotal', $subtotal);
-        $pageFooter = $view->render();
+        $subtotalOut = $view->render();
 
-        return trim(preg_replace('~[\\n]+~', '', $pageFooter));
+        return trim(preg_replace('~[\\n]+~', '', $subtotalOut));
     }
 
     private function renderCartFooter(TcpdfWrapper $pdf, OrderItem $orderItem, string $pdfType): string
