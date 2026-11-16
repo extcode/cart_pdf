@@ -152,6 +152,35 @@ class TcpdfWrapper extends TCPDF
         $this->writeHtmlCellWithConfig($content, $config);
     }
 
+    /**
+     * Writes the content on trial into a copy of the document. Returns the
+     * height the content needs, or null if it does not fit on the current
+     * page.
+     *
+     * TCPDF's own transactions cannot be used: writing a table header or a
+     * row with "nobr" starts a transaction internally, which replaces the
+     * outer one, so a rollback restores a wrong state.
+     */
+    public function measureHtmlCellWithConfig(string $content, array $config): ?float
+    {
+        $copy = clone $this;
+
+        try {
+            $copy->writeHtmlCellWithConfig($content, $config);
+
+            if ($copy->getPage() !== $this->getPage()) {
+                return null;
+            }
+
+            return $copy->GetY() - $this->GetY();
+        } finally {
+            // The copy shares the file id and with it the cached files (e.g.
+            // images) of the document. Without the id its destructor keeps
+            // them.
+            $copy->file_id = null;
+        }
+    }
+
     public function writeHtmlCellWithConfig(string $content, array $config): void
     {
         $width = (float)($config['width'] ?? 0.0);

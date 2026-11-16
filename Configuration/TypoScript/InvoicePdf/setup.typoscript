@@ -129,6 +129,15 @@ plugin.tx_cartpdf {
                 spacingY = 10
                 fontSize = 8
 
+                # Ends the product table on each page but the last one with
+                # Order/Subtotal.html, e.g. to show the subtotal.
+                pageSubtotal = 0
+
+                # Starts the product table on each page but the first one with
+                # Order/BroughtForward.html, e.g. to show the amount brought
+                # forward from the previous page.
+                pageBroughtForward = 0
+
                 summary < plugin.tx_cart.settings.showCartAction.summary
             }
 

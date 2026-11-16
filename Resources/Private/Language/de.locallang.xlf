@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2026-11-16T12:00:00Z" product-name="cart_pdf">
+        <header/>
+        <body>
+            <trans-unit id="tx_cartpdf.order.brought_forward">
+                <source>Brought forward from page %s</source>
+                <target>Übertrag von Seite %s</target>
+            </trans-unit>
+            <trans-unit id="tx_cartpdf.order.subtotal">
+                <source>Subtotal</source>
+                <target>Zwischensumme</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
