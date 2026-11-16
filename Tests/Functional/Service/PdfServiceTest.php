@@ -16,6 +16,7 @@ use Extcode\Cart\Domain\Model\Order\Item as OrderItem;
 use Extcode\Cart\Domain\Repository\Order\ItemRepository as OrderItemRepository;
 use Extcode\CartPdf\Service\PdfService;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use Smalot\PdfParser\Document;
 use Smalot\PdfParser\Parser;
@@ -216,6 +217,62 @@ final class PdfServiceTest extends FunctionalTestCase
 
         self::assertGreaterThan(2, count($document->getPages()));
         $this->assertEachProductOncePerPage($document, $grossBySku, true, true);
+    }
+
+    public static function summaryOptionsDataProvider(): \Generator
+    {
+        yield 'with subtotal and amount brought forward' => [
+            [
+                'plugin.tx_cartpdf.invoicePdf.body.order.pageSubtotal = 1',
+                'plugin.tx_cartpdf.invoicePdf.body.order.pageBroughtForward = 1',
+                'module.tx_cartpdf.invoicePdf.body.order.pageSubtotal = 1',
+                'module.tx_cartpdf.invoicePdf.body.order.pageBroughtForward = 1',
+            ],
+            true,
+        ];
+        yield 'without subtotal and amount brought forward (default)' => [[], false];
+    }
+
+    /**
+     * All products fit on the first page, but the summary does not fit below
+     * the last product. The summary must not be split, and it must not stand
+     * alone, so the last product moves to the next page as well.
+     *
+     * @param list<string> $typoScript
+     */
+    #[Test]
+    #[DataProvider('summaryOptionsDataProvider')]
+    public function invoiceMovesLastProductWithSummaryToNextPageIfSummaryDoesNotFit(
+        array $typoScript,
+        bool $withSubtotal,
+    ): void {
+        $this->importPHPDataSet(__DIR__ . '/../Fixtures/OrderItemWithSummaryNotFittingBelowLastProduct.php');
+        if ($typoScript !== []) {
+            $this->addTypoScript($typoScript);
+        }
+
+        $pages = $this->parsePdf($this->renderDocument(
+            'invoice',
+            'with-summary-not-fitting-below-last-product-' . ($withSubtotal ? 'with' : 'without') . '-subtotal'
+        ))->getPages();
+        $firstPage = $this->normalizeText($pages[0]->getText());
+        $secondPage = $this->normalizeText($pages[1]->getText());
+
+        self::assertStringContainsString('BULK-020 Massenartikel Nr. 020', $firstPage);
+        self::assertStringNotContainsString('BULK-021', $firstPage);
+        foreach (['Price (net)', 'VAT (19 %)', 'Total Price (gross)'] as $summaryLine) {
+            self::assertStringNotContainsString($summaryLine, $firstPage, 'The summary is not split.');
+            self::assertStringContainsString($summaryLine, $secondPage, 'The summary is on the next page.');
+        }
+        self::assertSame($withSubtotal, str_contains($firstPage, 'Subtotal 1.035,99 €'));
+
+        preg_match_all('/BULK-\d{3}/', $secondPage, $matches);
+        self::assertSame(['BULK-021'], $matches[0], 'The last product moves with the summary.');
+        self::assertLessThan(
+            strpos($secondPage, 'Price (net)'),
+            strpos($secondPage, 'BULK-021'),
+            'The last product precedes the summary.'
+        );
     }
 
     #[Test]
