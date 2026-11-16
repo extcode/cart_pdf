@@ -16,7 +16,6 @@ use Extcode\CartPdf\Tests\Unit\Fixtures\FontSizeRecordingTcpdfWrapper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
-use TYPO3\CMS\Core\View\ViewFactoryInterface;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 #[CoversClass(TcpdfWrapper::class)]
@@ -68,7 +67,6 @@ final class TcpdfWrapperTest extends UnitTestCase
     private function createSubject(): FontSizeRecordingTcpdfWrapper
     {
         $subject = new FontSizeRecordingTcpdfWrapper(
-            self::createStub(ViewFactoryInterface::class),
             'invoicePdf',
             ['invoicePdf' => [], 'view' => []]
         );
