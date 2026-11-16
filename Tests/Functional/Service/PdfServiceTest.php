@@ -181,10 +181,10 @@ final class PdfServiceTest extends FunctionalTestCase
     }
 
     #[Test]
-    public function invoiceWithManyProductsShowsSubtotalOnEachPageButTheLast(): void
+    public function invoiceWithManyProductsShowsSubtotalAndBroughtForwardOnEachPage(): void
     {
         $this->importPHPDataSet(__DIR__ . '/../Fixtures/OrderItemWithManyProducts.php');
-        $this->enablePageSubtotal();
+        $this->enableOptions(['pageSubtotal', 'pageBroughtForward']);
 
         $grossBySku = self::BASE_GROSS_BY_SKU;
         for ($i = 3; $i <= 60; $i++) {
@@ -194,7 +194,7 @@ final class PdfServiceTest extends FunctionalTestCase
         $document = $this->parsePdf($this->renderDocument('invoice', 'with-many-products'));
 
         self::assertGreaterThan(1, count($document->getPages()));
-        $this->assertEachProductOnceAndSubtotalPerPage($document, $grossBySku);
+        $this->assertEachProductOncePerPage($document, $grossBySku, true, true);
     }
 
     /**
@@ -202,10 +202,10 @@ final class PdfServiceTest extends FunctionalTestCase
      * fit on the previous page does not fit on the next one.
      */
     #[Test]
-    public function invoiceWithProductsOfDifferentHeightShowsSubtotalOnEachPageButTheLast(): void
+    public function invoiceWithProductsOfDifferentHeightShowsSubtotalAndBroughtForwardOnEachPage(): void
     {
         $this->importPHPDataSet(__DIR__ . '/../Fixtures/OrderItemWithProductsOfDifferentHeight.php');
-        $this->enablePageSubtotal();
+        $this->enableOptions(['pageSubtotal', 'pageBroughtForward']);
 
         $grossBySku = self::BASE_GROSS_BY_SKU;
         for ($i = 3; $i <= 80; $i++) {
@@ -215,11 +215,28 @@ final class PdfServiceTest extends FunctionalTestCase
         $document = $this->parsePdf($this->renderDocument('invoice', 'with-products-of-different-height'));
 
         self::assertGreaterThan(2, count($document->getPages()));
-        $this->assertEachProductOnceAndSubtotalPerPage($document, $grossBySku);
+        $this->assertEachProductOncePerPage($document, $grossBySku, true, true);
     }
 
     #[Test]
-    public function invoiceWithManyProductsHasNoSubtotalByDefault(): void
+    public function invoiceWithManyProductsWithOnlyBroughtForwardShowsNoSubtotal(): void
+    {
+        $this->importPHPDataSet(__DIR__ . '/../Fixtures/OrderItemWithManyProducts.php');
+        $this->enableOptions(['pageBroughtForward']);
+
+        $grossBySku = self::BASE_GROSS_BY_SKU;
+        for ($i = 3; $i <= 60; $i++) {
+            $grossBySku[sprintf('BULK-%03d', $i)] = 1.00;
+        }
+
+        $document = $this->parsePdf($this->renderDocument('invoice', 'with-many-products-with-only-brought-forward'));
+
+        self::assertGreaterThan(1, count($document->getPages()));
+        $this->assertEachProductOncePerPage($document, $grossBySku, false, true);
+    }
+
+    #[Test]
+    public function invoiceWithManyProductsHasNoSubtotalAndBroughtForwardByDefault(): void
     {
         $this->importPHPDataSet(__DIR__ . '/../Fixtures/OrderItemWithManyProducts.php');
 
@@ -228,6 +245,7 @@ final class PdfServiceTest extends FunctionalTestCase
 
         self::assertGreaterThan(1, count($document->getPages()));
         self::assertStringNotContainsString('Subtotal', $text);
+        self::assertStringNotContainsString('Brought forward', $text);
         for ($i = 3; $i <= 60; $i++) {
             self::assertSame(1, substr_count($text, sprintf('BULK-%03d', $i)));
         }
@@ -239,8 +257,12 @@ final class PdfServiceTest extends FunctionalTestCase
      *
      * @param array<string, float> $grossBySku
      */
-    private function assertEachProductOnceAndSubtotalPerPage(Document $document, array $grossBySku): void
-    {
+    private function assertEachProductOncePerPage(
+        Document $document,
+        array $grossBySku,
+        bool $withSubtotal,
+        bool $withBroughtForward,
+    ): void {
         $pages = $document->getPages();
         $lastPageIndex = null;
         foreach ($pages as $index => $page) {
@@ -266,28 +288,48 @@ final class PdfServiceTest extends FunctionalTestCase
                 sprintf('Page %d has the table header.', $pageNumber)
             );
 
+            if ($index === 0 || !$withBroughtForward) {
+                self::assertStringNotContainsString('Brought forward', $text, sprintf('Page %d has no amount brought forward.', $pageNumber));
+            } else {
+                $expected = sprintf('Brought forward from page %d %s €', $pageNumber - 1, $this->formatAmount($subtotal));
+                self::assertStringContainsString($expected, $text, sprintf('Page %d starts with the amount brought forward.', $pageNumber));
+                self::assertLessThan(
+                    strpos($text, $matches[0][0]),
+                    strpos($text, $expected),
+                    sprintf('The amount brought forward on page %d precedes the first product of the page.', $pageNumber)
+                );
+            }
+
             foreach ($matches[0] as $sku) {
                 $foundSkus[] = $sku;
                 $subtotal += $grossBySku[$sku];
             }
 
-            if ($index === $lastPageIndex) {
-                self::assertStringNotContainsString('Subtotal', $text, 'The last page has no subtotal.');
-                self::assertStringContainsString('Total Price (gross)', $text, 'The last page has the summary.');
-                continue;
+            if ($index === $lastPageIndex || !$withSubtotal) {
+                self::assertStringNotContainsString('Subtotal', $text, sprintf('Page %d has no subtotal.', $pageNumber));
+            } else {
+                $expected = sprintf('Subtotal %s €', $this->formatAmount($subtotal));
+                self::assertStringContainsString($expected, $text, sprintf('Page %d ends with the subtotal.', $pageNumber));
+                self::assertGreaterThan(
+                    strrpos($text, (string)end($matches[0])),
+                    strpos($text, $expected),
+                    sprintf('The subtotal on page %d follows the last product of the page.', $pageNumber)
+                );
             }
 
-            $expected = sprintf('Subtotal %s €', number_format($subtotal, 2, ',', '.'));
-            self::assertStringContainsString($expected, $text, sprintf('Page %d ends with the subtotal.', $pageNumber));
-            self::assertGreaterThan(
-                strrpos($text, (string)end($matches[0])),
-                strpos($text, $expected),
-                sprintf('The subtotal on page %d follows the last product of the page.', $pageNumber)
-            );
-            self::assertStringNotContainsString('Total Price (gross)', $text, sprintf('Page %d has no summary.', $pageNumber));
+            if ($index === $lastPageIndex) {
+                self::assertStringContainsString('Total Price (gross)', $text, 'The last page has the summary.');
+            } else {
+                self::assertStringNotContainsString('Total Price (gross)', $text, sprintf('Page %d has no summary.', $pageNumber));
+            }
         }
 
         self::assertSame(array_keys($grossBySku), $foundSkus, 'Each product is shown once and in order.');
+    }
+
+    private function formatAmount(float $amount): string
+    {
+        return number_format($amount, 2, ',', '.');
     }
 
     #[Test]
@@ -386,12 +428,20 @@ final class PdfServiceTest extends FunctionalTestCase
         ]);
     }
 
-    private function enablePageSubtotal(): void
+    /**
+     * Enables options of body.order of the invoice, which are disabled by
+     * default.
+     *
+     * @param list<string> $options
+     */
+    private function enableOptions(array $options): void
     {
-        $this->addTypoScript([
-            'plugin.tx_cartpdf.invoicePdf.body.order.pageSubtotal = 1',
-            'module.tx_cartpdf.invoicePdf.body.order.pageSubtotal = 1',
-        ]);
+        $lines = [];
+        foreach ($options as $option) {
+            $lines[] = 'plugin.tx_cartpdf.invoicePdf.body.order.' . $option . ' = 1';
+            $lines[] = 'module.tx_cartpdf.invoicePdf.body.order.' . $option . ' = 1';
+        }
+        $this->addTypoScript($lines);
     }
 
     /**

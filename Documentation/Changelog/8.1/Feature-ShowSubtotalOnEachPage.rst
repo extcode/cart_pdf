@@ -51,7 +51,7 @@ five columns, the label spans the first four. If the own templates change the
 number of columns or the style of the table, add an own
 ``Order/Subtotal.html`` that matches them, e.g. by adapting the ``colspan``.
 
-With ``body.order.pageSubtotal = 0`` the product table is rendered as one
-table as before.
+With ``body.order.pageSubtotal = 0`` and ``body.order.pageBroughtForward = 0``
+the product table is rendered as one table as before.
 
 .. index:: Frontend, Backend
