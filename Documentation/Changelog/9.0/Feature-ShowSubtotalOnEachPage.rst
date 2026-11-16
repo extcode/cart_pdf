@@ -37,10 +37,12 @@ empty.
 Impact
 ======
 
-The product table is split into one table per page. The number of products
-per page is determined by writing the table on trial, so products of
-different height (e.g. with long titles or additional lines) are taken into
-account.
+The product table is split into one table per page, also if the subtotal and
+the amount brought forward are disabled. The number of products per page is
+determined by writing the table on trial, so products of different height
+(e.g. with long titles or additional lines) are taken into account. The
+summary of the order is never split and never stands alone: if it does not
+fit below the last product, this product moves to the next page as well.
 
 Own templates for ``Order/Header.html``, ``Order/Product.html`` and
 ``Order/Summary.html`` keep working. A ``rowspan`` must not span several
@@ -51,7 +53,6 @@ five columns, the label spans the first four. If the own templates change the
 number of columns or the style of the table, add an own
 ``Order/Subtotal.html`` that matches them, e.g. by adapting the ``colspan``.
 
-Set ``body.order.pageSubtotal = 0`` and ``body.order.pageBroughtForward = 0``
-to render the product table as one table as before.
+With ``body.order.pageSubtotal = 0`` the tables end without the subtotal.
 
 .. index:: Frontend, Backend
