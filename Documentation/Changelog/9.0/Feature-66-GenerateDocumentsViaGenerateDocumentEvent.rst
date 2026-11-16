@@ -1,8 +1,10 @@
 .. include:: ../../Includes.rst.txt
 
-=====================================================
-Feature: Generate documents via GenerateDocumentEvent
-=====================================================
+===========================================================
+Feature: #66 - Generate documents via GenerateDocumentEvent
+===========================================================
+
+See `Pull Request #66 <https://github.com/extcode/cart_pdf/pull/66>`__
 
 Description
 ===========
