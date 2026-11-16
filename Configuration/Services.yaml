@@ -11,6 +11,12 @@ services:
         event: Extcode\Cart\Event\Order\FinishEvent
         before: 'cart--order--finish--email'
 
+  Extcode\CartPdf\EventListener\Document\GenerateDocument:
+    tags:
+      - name: event.listener
+        identifier: 'cart-pdf--document--generate-document'
+        event: Extcode\Cart\Event\Document\GenerateDocumentEvent
+
   Extcode\CartPdf\Service\DocumentRenderServiceInterface:
     alias: Extcode\CartPdf\Service\PdfService
 

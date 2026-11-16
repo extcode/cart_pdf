@@ -1,5 +1,7 @@
 .. include:: ../../Includes.rst.txt
 
+.. _installation:
+
 ============
 Installation
 ============
@@ -28,10 +30,45 @@ You can get the latest version from git by using the git command:
 
    git clone git@github.com:extcode/cart_pdf.git
 
-Preparation: Include static TypoScript
---------------------------------------
+Preparation: Include TypoScript
+-------------------------------
 
-The extension ships some TypoScript code which needs to be included.
+The extension ships some TypoScript code which needs to be included, either
+via site sets or as static TypoScript. Use only one of both ways.
+
+Include site sets
+~~~~~~~~~~~~~~~~~
+
+The extension provides a site set for the general configuration and one for
+each type of PDF:
+
+*  **Shopping Cart - Cart Pdf** (``extcode/cart-pdf``)
+*  **Shopping Cart - Cart Pdf - Order PDF** (``extcode/cart-pdf-order-pdf``)
+*  **Shopping Cart - Cart Pdf - Invoice PDF** (``extcode/cart-pdf-invoice-pdf``)
+*  **Shopping Cart - Cart Pdf - Delivery PDF** (``extcode/cart-pdf-delivery-pdf``)
+
+The sets of the PDF types depend on ``extcode/cart-pdf``, so it is enough to
+add the sets of the required PDF types to the site.
+
+#. Switch to the **Sites module** and edit the configuration of your site.
+
+#. Select one or more of **Shopping Cart - Cart Pdf - Order PDF**,
+   **Shopping Cart - Cart Pdf - Invoice PDF**,
+   **Shopping Cart - Cart Pdf - Delivery PDF** at the field *Sets for this Site*.
+
+Alternatively, add the sets to the ``dependencies`` in the
+:file:`config/sites/<site>/config.yaml` of your site:
+
+.. code-block:: yaml
+   :caption: config/sites/<site>/config.yaml
+
+   dependencies:
+     - extcode/cart-pdf-order-pdf
+     - extcode/cart-pdf-invoice-pdf
+     - extcode/cart-pdf-delivery-pdf
+
+Include static TypoScript
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #. Switch to the root page of your site.
 
