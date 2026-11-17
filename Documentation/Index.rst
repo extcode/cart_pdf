@@ -31,7 +31,7 @@ EXT: Cart Pdf
    :Keywords:
       cart, shop, pdf, order, invoice
 
-   :Autor:
+   :Author:
       Daniel Gohlke
 
    :E-Mail:
